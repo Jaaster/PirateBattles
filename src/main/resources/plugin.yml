@@ -1,0 +1,22 @@
+name: PirateBattles
+version: 1.0
+author: Jaaster
+main: me.jaaster.plugin.Main
+
+commands:
+  pb:
+    description: The main plugin command.
+    usage: For Admins only [pb set red/bluespawn or pb set lobbyspawn]
+    permissions: piratebattle.admin
+  join:
+    description: Join a team
+    usage: For players to join a Team.
+    permissions: piratebattle.join
+  leave:
+    description: Leave a team
+    usage: For players to leave a Team.
+    permissions: piratebattle.leave
+  setcannon:
+    description: For setting the locations of Cannons
+    usage: /setcannon
+    permissions: piratebattle.admin

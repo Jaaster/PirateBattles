@@ -1,0 +1,21 @@
+#--------------------------#
+#-------PirateBattles------#
+#--------------------------#
+LobbyOnJoin: false
+
+Locations:
+  LOBBYSPAWN:
+    World: World
+    X: 0
+    Y: 0
+    Z: 0
+  REDSPAWN:
+    World: World
+    X: 0
+    Y: 0
+    Z: 0
+  BLUESPAWN:
+    World: World
+    X: 0
+    Y: 0
+    Z: 0

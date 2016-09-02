@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PirateBattles:jar">
+    <output-path>$USER_HOME$/Documents/Programming/Java/Minecraft Servers/PirateBattle Server/plugins</output-path>
+    <root id="archive" name="PirateBattles.jar">
+      <element id="module-output" name="PirateBattles" />
+    </root>
+  </artifact>
+</component>
