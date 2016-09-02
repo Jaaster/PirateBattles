@@ -3,9 +3,17 @@ package me.jaaster.plugin.game.cannons;
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.config.Config;
 import me.jaaster.plugin.utils.CardinalDirection;
-import org.bukkit.*;
+import net.minecraft.server.v1_9_R2.EnumParticle;
+import net.minecraft.server.v1_9_R2.PacketPlayOutWorldParticles;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import static org.bukkit.ChatColor.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -35,7 +43,7 @@ public class Cannon {
 
     private void setupCannonsFromConfig() {
         Config.RConfig config = Main.getInstance().getConfigFromName("CannonConfig");
-        ConfigurationSection sec = config.getConfigurationSection("Cannon" + id);
+        ConfigurationSection sec = config.getConfigurationSection("Cannon" + id).getConfigurationSection("Location");
         location = new Location(Bukkit.getWorld(sec.getString("World")), sec.getDouble("X"), sec.getDouble("Y"), sec.getDouble("Z"));
         direction = CardinalDirection.valueOf(sec.getString("Direction"));
         buildCannon();
@@ -47,15 +55,15 @@ public class Cannon {
         Config.RConfig config = Main.getInstance().getConfigFromName("CannonConfig");
         int i = id - 1;
         if (i != -1 && i < 0) {
-            p.sendMessage(Main.getInstance().getTitle() + "You cannot set a " + ChatColor.BLUE + "Cannon " + (id - 1) + ChatColor.GRAY + " because it is less than 0");
+            p.sendMessage(Main.getInstance().getTitle() + "You cannot set a " + BLUE + "Cannon " + (id - 1) + GRAY + " because it is less than 0");
             return;
         }
 
         if (config.getConfigurationSection("Cannon" + id) == null) {
             if (i != -1 && config.getConfigurationSection("Cannon" + (id - 1)) == null) {
-                p.sendMessage(Main.getInstance().getTitle() + "You cannot set a" + ChatColor.BLUE + " Cannon " +
-                        ChatColor.GRAY + "with the id of " + ChatColor.BLUE + id + ChatColor.GRAY + " if " + ChatColor.BLUE + "Cannon " + (id - 1) +
-                        ChatColor.GRAY + " does not exist" + ChatColor.GRAY + " in the CannonConfig.yml");
+                p.sendMessage(Main.getInstance().getTitle() + "You cannot set a" + BLUE + " Cannon " +
+                        GRAY + "with the id of " + BLUE + id + GRAY + " if " + BLUE + "Cannon " + (id - 1) +
+                        GRAY + " does not exist" + GRAY + " in the CannonConfig.yml");
                 return;
             }
             config.createSection("Cannon" + id);
@@ -63,7 +71,7 @@ public class Cannon {
 
         }
 
-        p.sendMessage(Main.getInstance().getTitle() + "You have set " + ChatColor.BLUE + "Cannon " + id + ChatColor.GRAY + " in the CannonConfig.yml");
+        p.sendMessage(Main.getInstance().getTitle() + "You have set " + BLUE + "Cannon " + id + GRAY + " in the CannonConfig.yml");
 
         ConfigurationSection loc = config.getConfigurationSection("Cannon" + id).getConfigurationSection("Location");
         direction = getCardinalDirection(p);
@@ -94,23 +102,45 @@ public class Cannon {
         status = CannonStatus.BUILDING;
         final HashMap<Location, Material> map = cannonBlockLocations();
         final Iterator<Location> iterator = map.keySet().iterator();
-        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable() {
+        new BukkitRunnable() {
             @Override
             public void run() {
                 if (iterator.hasNext()) {
                     final Location loc = iterator.next();
                     if (map.get(loc).equals(Material.REDSTONE_TORCH_ON) || map.get(loc).equals(Material.STONE_BUTTON)) {
+
                         loc.getBlock().setType(map.get(loc));
                     } else {
                         loc.getBlock().setType(map.get(loc));
                     }
-                }
+                    buildEffect(loc);
+                } else cancel();
 
             }
-        }, 20, 20);
+        }.runTaskTimer(Main.getInstance(), 0, 20);
 
         status = CannonStatus.WAITING;
 
+
+    }
+
+    private void buildEffect(Location loc) {
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(
+                EnumParticle.CRIT,    // particle type.
+                true,                                                   // true
+                loc.getBlockX(),             // x coordinate
+                loc.getBlockY(),             // y coordinate
+                loc.getBlockZ(),             // z coordinate
+                0,                                                              // x offset
+                0,                                                              // y offset
+                0,                                                              // z offset
+                1,                                                             // speed
+                500,                                                 // number of particles
+                null
+        );
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+        }
 
     }
 
