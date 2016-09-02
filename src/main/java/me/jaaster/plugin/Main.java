@@ -32,6 +32,7 @@ public class Main extends JavaPlugin {
     private String title = GRAY + "" + BOLD + "[" + LIGHT_PURPLE + "PirateBattles" + GRAY + "" + BOLD + "]: " + GRAY + "";
     private Config.RConfig cannonConfig;
 
+    //added something
     @Override
     public void onEnable() {
 
