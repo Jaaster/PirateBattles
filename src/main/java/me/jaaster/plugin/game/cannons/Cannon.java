@@ -12,6 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Button;
 import org.bukkit.material.Dispenser;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -102,30 +103,48 @@ public class Cannon {
 
     public void buildCannon() {
         setStatus(CannonStatus.BUILDING);
-        final HashMap<Location, Material> map = cannonBlockLocations();
-        final Iterator<Location> iterator = map.keySet().iterator();
+
+        final Iterator<Location> iterator = getCannonBlockLocations().keySet().iterator();
         new BukkitRunnable() {
             @Override
             public void run() {
 
                 if (iterator.hasNext()) {
 
-                    Location loc = iterator.next();
-                    Material mat = map.get(loc);
+                   final Location loc = (Location) iterator.next();
+                   final Material mat = getCannonBlockLocations().get(loc);
                     if (mat.equals(Material.REDSTONE_TORCH_ON)) {
-                        loc.getBlock().setType(mat);
+
+                       new BukkitRunnable(){
+                           @Override
+                           public void run() {
+                               loc.getBlock().setType(mat);
+                               cancel();
+                           }
+                       }.runTaskLater(Main.getInstance(), 3*20);
                     } else if (mat.equals(Material.STONE_BUTTON)) {
-                        loc.getBlock().setType(mat);
+
+                        new BukkitRunnable(){
+                            @Override
+                            public void run() {
+                                Button button = new Button(mat);
+                                button.setFacingDirection(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")).getOppositeFace());
+                                loc.getBlock().setType(mat);
+                                loc.getBlock().setData(button.getData());
+                                cancel();
+                            }
+                        }.runTaskLater(Main.getInstance(), 3*20);
+
+
                     } else if (mat.equals(Material.DISPENSER)) {
                         Dispenser block = new Dispenser(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")));
                         loc.getBlock().setType(mat);
                         loc.getBlock().setData(block.getData());
 
-                    }else{
+                    } else {
                         loc.getBlock().setType(mat);
                     }
                     buildEffect(loc);
-
                 } else cancel();
 
             }
@@ -136,32 +155,59 @@ public class Cannon {
 
     }
 
-    private HashMap<Location, Material> cannonBlockLocations() {
+    private HashMap<Location, Material> getCannonBlockLocations() {
         HashMap<Location, Material> list = new HashMap<>();
-        Material mat;
-        for (int i = 0; i < 5; i++) {
+        Material mat = null;
+        for (int i = 0; i < 7; i++) {
             if (i < 4)
                 mat = Material.IRON_BLOCK;
-            else {
+            else if (i == 4) {
                 mat = Material.DISPENSER;
+            } else if (i == 5) {
+                mat = Material.STONE_BUTTON;
+            } else {
+                mat = Material.REDSTONE_TORCH_ON;
+                break;
             }
+
             switch (direction) {
                 case NORTH:
+                    if (mat.equals(Material.STONE_BUTTON)) {
+                        list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() + 1), mat);
+                        break;
+                    }
+
                     list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() - i), mat);
                     break;
                 case EAST:
+                    if (mat.equals(Material.STONE_BUTTON)) {
+                        list.put(new Location(location.getWorld(), location.getBlockX() - 1, location.getBlockY() + 1, location.getBlockZ()), mat);
+                        break;
+                    }
+
                     list.put(new Location(location.getWorld(), location.getBlockX() + i, location.getBlockY() + 1, location.getBlockZ()), mat);
                     break;
                 case SOUTH:
+                    if (mat.equals(Material.STONE_BUTTON)) {
+                        list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() - 1), mat);
+                        break;
+                    }
+
                     list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() + i), mat);
                     break;
                 case WEST:
+                    if (mat.equals(Material.STONE_BUTTON)) {
+                        list.put(new Location(location.getWorld(), location.getBlockX() + 1, location.getBlockY() + 1, location.getBlockZ()), mat);
+                        break;
+                    }
+
                     list.put(new Location(location.getWorld(), location.getBlockX() - i, location.getBlockY() + 1, location.getBlockZ()), mat);
                     break;
             }
 
 
         }
+        list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 2, location.getBlockZ()), mat);
 
         return list;
     }
