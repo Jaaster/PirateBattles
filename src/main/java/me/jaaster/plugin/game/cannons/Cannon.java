@@ -8,9 +8,11 @@ import net.minecraft.server.v1_9_R2.PacketPlayOutWorldParticles;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Dispenser;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.ChatColor.*;
@@ -99,63 +101,50 @@ public class Cannon {
     }
 
     public void buildCannon() {
-        status = CannonStatus.BUILDING;
+        setStatus(CannonStatus.BUILDING);
         final HashMap<Location, Material> map = cannonBlockLocations();
         final Iterator<Location> iterator = map.keySet().iterator();
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (iterator.hasNext()) {
-                    final Location loc = iterator.next();
-                    if (map.get(loc).equals(Material.REDSTONE_TORCH_ON) || map.get(loc).equals(Material.STONE_BUTTON)) {
 
-                        loc.getBlock().setType(map.get(loc));
-                    } else {
-                        loc.getBlock().setType(map.get(loc));
+                if (iterator.hasNext()) {
+
+                    Location loc = iterator.next();
+                    Material mat = map.get(loc);
+                    if (mat.equals(Material.REDSTONE_TORCH_ON)) {
+                        loc.getBlock().setType(mat);
+                    } else if (mat.equals(Material.STONE_BUTTON)) {
+                        loc.getBlock().setType(mat);
+                    } else if (mat.equals(Material.DISPENSER)) {
+                        Dispenser block = new Dispenser(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")));
+                        loc.getBlock().setType(mat);
+                        loc.getBlock().setData(block.getData());
+
+                    }else{
+                        loc.getBlock().setType(mat);
                     }
                     buildEffect(loc);
+
                 } else cancel();
 
             }
         }.runTaskTimer(Main.getInstance(), 0, 20);
 
-        status = CannonStatus.WAITING;
+        setStatus(CannonStatus.WAITING);
 
 
     }
-
-    private void buildEffect(Location loc) {
-        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(
-                EnumParticle.CRIT,    // particle type.
-                true,                                                   // true
-                loc.getBlockX(),             // x coordinate
-                loc.getBlockY(),             // y coordinate
-                loc.getBlockZ(),             // z coordinate
-                0,                                                              // x offset
-                0,                                                              // y offset
-                0,                                                              // z offset
-                1,                                                             // speed
-                500,                                                 // number of particles
-                null
-        );
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
-        }
-
-    }
-
 
     private HashMap<Location, Material> cannonBlockLocations() {
         HashMap<Location, Material> list = new HashMap<>();
         Material mat;
-
-
         for (int i = 0; i < 5; i++) {
             if (i < 4)
                 mat = Material.IRON_BLOCK;
-            else
+            else {
                 mat = Material.DISPENSER;
-
+            }
             switch (direction) {
                 case NORTH:
                     list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() - i), mat);
@@ -206,6 +195,26 @@ public class Cannon {
             return CardinalDirection.EAST;
         }
         return CardinalDirection.NORTH;
+    }
+
+    private void buildEffect(Location loc) {
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(
+                EnumParticle.CRIT,    // particle type.
+                true,                                                   // true
+                loc.getBlockX(),             // x coordinate
+                loc.getBlockY(),             // y coordinate
+                loc.getBlockZ(),             // z coordinate
+                0,                                                              // x offset
+                0,                                                              // y offset
+                0,                                                              // z offset
+                1,                                                             // speed
+                500,                                                 // number of particles
+                null
+        );
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+        }
+
     }
 
 }
