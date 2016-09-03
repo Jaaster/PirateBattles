@@ -111,30 +111,13 @@ public class Cannon {
 
                 if (iterator.hasNext()) {
 
-                   final Location loc = (Location) iterator.next();
+                   final Location loc = iterator.next();
                    final Material mat = getCannonBlockLocations().get(loc);
                     if (mat.equals(Material.REDSTONE_TORCH_ON)) {
+                        runLater(mat, loc, 3);
 
-                       new BukkitRunnable(){
-                           @Override
-                           public void run() {
-                               loc.getBlock().setType(mat);
-                               cancel();
-                           }
-                       }.runTaskLater(Main.getInstance(), 3*20);
                     } else if (mat.equals(Material.STONE_BUTTON)) {
-
-                        new BukkitRunnable(){
-                            @Override
-                            public void run() {
-                                Button button = new Button(mat);
-                                button.setFacingDirection(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")).getOppositeFace());
-                                loc.getBlock().setType(mat);
-                                loc.getBlock().setData(button.getData());
-                                cancel();
-                            }
-                        }.runTaskLater(Main.getInstance(), 3*20);
-
+                        runLater(mat, loc, 3);
 
                     } else if (mat.equals(Material.DISPENSER)) {
                         Dispenser block = new Dispenser(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")));
@@ -153,6 +136,32 @@ public class Cannon {
         setStatus(CannonStatus.WAITING);
 
 
+    }
+
+    private void runLater(final Material mat, final Location loc, int delay){
+        if (mat.equals(Material.STONE_BUTTON)) {
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    Button button = new Button(mat);
+                    button.setFacingDirection(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")).getOppositeFace());
+                    loc.getBlock().setType(mat);
+                    loc.getBlock().setData(button.getData());
+                    cancel();
+                }
+            }.runTaskLater(Main.getInstance(), delay*20);
+
+
+        }else  if (mat.equals(Material.REDSTONE_TORCH_ON)) {
+
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    loc.getBlock().setType(mat);
+                    cancel();
+                }
+            }.runTaskLater(Main.getInstance(), delay*20);
+        }
     }
 
     private HashMap<Location, Material> getCannonBlockLocations() {
