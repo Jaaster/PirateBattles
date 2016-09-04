@@ -32,6 +32,9 @@ public class Cannon {
     CannonStatus status;
     CardinalDirection direction;
 
+    int ammo;
+    boolean loaded;
+
     public Cannon(int id, Player p) {
         this.id = id;
         status = CannonStatus.DEAD;
@@ -111,8 +114,8 @@ public class Cannon {
 
                 if (iterator.hasNext()) {
 
-                   final Location loc = iterator.next();
-                   final Material mat = getCannonBlockLocations().get(loc);
+                    final Location loc = iterator.next();
+                    final Material mat = getCannonBlockLocations().get(loc);
                     if (mat.equals(Material.REDSTONE_TORCH_ON)) {
                         runLater(mat, loc, 3);
 
@@ -138,9 +141,9 @@ public class Cannon {
 
     }
 
-    private void runLater(final Material mat, final Location loc, int delay){
+    private void runLater(final Material mat, final Location loc, int delay) {
         if (mat.equals(Material.STONE_BUTTON)) {
-            new BukkitRunnable(){
+            new BukkitRunnable() {
                 @Override
                 public void run() {
                     Button button = new Button(mat);
@@ -149,18 +152,18 @@ public class Cannon {
                     loc.getBlock().setData(button.getData());
                     cancel();
                 }
-            }.runTaskLater(Main.getInstance(), delay*20);
+            }.runTaskLater(Main.getInstance(), delay * 20);
 
 
-        }else  if (mat.equals(Material.REDSTONE_TORCH_ON)) {
+        } else if (mat.equals(Material.REDSTONE_TORCH_ON)) {
 
-            new BukkitRunnable(){
+            new BukkitRunnable() {
                 @Override
                 public void run() {
                     loc.getBlock().setType(mat);
                     cancel();
                 }
-            }.runTaskLater(Main.getInstance(), delay*20);
+            }.runTaskLater(Main.getInstance(), delay * 20);
         }
     }
 
@@ -221,6 +224,67 @@ public class Cannon {
         return list;
     }
 
+
+    public boolean fire() {
+        if (!canFire())
+            return false;
+
+
+        //This is where the vectors and entity stuff will be made :)
+        /*1 ammo = 20 blocks
+
+        Shoots creeper
+        1-4 ammo possible
+        create a method that takes a distance then returns the velocity to make that happen.
+        base the velocity off of the direction that the cannon is facing
+
+        */
+        return true;
+
+    }
+
+    private boolean canFire() {
+        if (getAmmo() < 1) return false;
+
+        if (!isLoaded())
+            return false;
+
+        return true;
+    }
+
+    public boolean addAmmo() {
+        if (hasMaxAmmo())
+            return false;
+
+        setAmmo(getAmmo() + 1);
+        return true;
+    }
+
+    private boolean hasMaxAmmo() {
+        if (getAmmo() > 3)
+            return true;
+        else return false;
+    }
+
+    private void setAmmo(int ammo) {
+        this.ammo = ammo;
+    }
+
+    private int getAmmo() {
+        return ammo;
+    }
+
+    public void load() {
+        if (isLoaded())
+            return;
+
+        loaded = true;
+    }
+
+
+    private boolean isLoaded() {
+        return loaded;
+    }
 
     public Location getLocation() {
         return location;
