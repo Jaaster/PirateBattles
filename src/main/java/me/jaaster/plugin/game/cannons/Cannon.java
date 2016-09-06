@@ -27,24 +27,29 @@ import java.util.*;
 public class Cannon {
 
 
-    int id;
-    Location location;
-    CannonStatus status;
-    CardinalDirection direction;
+    private int id;
+    private Location location;
+    private CannonStatus status;
+    private CardinalDirection direction;
 
-    int ammo;
-    boolean loaded;
+    private int ammo;
+    private boolean loaded;
 
     public Cannon(int id, Player p) {
         this.id = id;
+
+
         status = CannonStatus.DEAD;
-        setupNewCannon(p);
+
+        if (p == null) {
+            setupCannonsFromConfig();
+        } else {
+            setupNewCannon(p);
+        }
     }
 
     public Cannon(int id) {
-        this.id = id;
-        status = CannonStatus.DEAD;
-        setupCannonsFromConfig();
+        this(id, null);
     }
 
     private void setupCannonsFromConfig() {
@@ -150,7 +155,6 @@ public class Cannon {
                     button.setFacingDirection(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")).getOppositeFace());
                     loc.getBlock().setType(mat);
                     loc.getBlock().setData(button.getData());
-                    cancel();
                 }
             }.runTaskLater(Main.getInstance(), delay * 20);
 
@@ -161,7 +165,6 @@ public class Cannon {
                 @Override
                 public void run() {
                     loc.getBlock().setType(mat);
-                    cancel();
                 }
             }.runTaskLater(Main.getInstance(), delay * 20);
         }
@@ -246,10 +249,7 @@ public class Cannon {
     private boolean canFire() {
         if (getAmmo() < 1) return false;
 
-        if (!isLoaded())
-            return false;
-
-        return true;
+        return isLoaded();
     }
 
     public boolean addAmmo() {
