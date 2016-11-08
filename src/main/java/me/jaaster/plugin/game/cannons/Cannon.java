@@ -11,10 +11,12 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.material.Button;
 import org.bukkit.material.Dispenser;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import static org.bukkit.ChatColor.*;
 
@@ -228,16 +230,41 @@ public class Cannon {
     }
 
 
+    private Vector getVelocity() {
+        Vector vec = new Vector();
+        vec.setY(2);
+
+        switch (direction) {
+            case NORTH:
+                vec.setZ(-0.5);
+                break;
+            case EAST:
+                vec.setX(0.5);
+                break;
+            case SOUTH:
+                vec.setZ(0.5);
+                break;
+            case WEST:
+                vec.setX(-0.5);
+                break;
+        }
+        return vec;
+
+
+    }
+
     public boolean fire() {
         if (!canFire())
             return false;
 
 
+        FallingBlock block = location.getWorld().spawnFallingBlock(location, Material.DIAMOND_ORE, (byte) 1);
+        block.setVelocity(getVelocity());
         //This is where the vectors and entity stuff will be made :)
         /*1 ammo = 20 blocks
 
         Shoots creeper
-        1-4 ammo possible
+        1/4 ammo possible
         create a method that takes a distance then returns the velocity to make that happen.
         base the velocity off of the direction that the cannon is facing
 
