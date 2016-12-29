@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.material.Button;
@@ -234,18 +235,21 @@ public class Cannon {
         Vector vec = new Vector();
         vec.setY(2);
 
+        double l = 0.7 * getAmmo();
+
+
         switch (direction) {
             case NORTH:
-                vec.setZ(-0.5);
+                vec.setZ(-l);
                 break;
             case EAST:
-                vec.setX(0.5);
+                vec.setX(l);
                 break;
             case SOUTH:
-                vec.setZ(0.5);
+                vec.setZ(l);
                 break;
             case WEST:
-                vec.setX(-0.5);
+                vec.setX(-l);
                 break;
         }
         return vec;
@@ -258,8 +262,8 @@ public class Cannon {
             return false;
 
 
-        FallingBlock block = location.getWorld().spawnFallingBlock(location, Material.DIAMOND_ORE, (byte) 1);
-        block.setVelocity(getVelocity());
+        final Creeper creeper = location.getWorld().spawn(location, Creeper.class);
+        creeper.setVelocity(getVelocity());
         //This is where the vectors and entity stuff will be made :)
         /*1 ammo = 20 blocks
 
@@ -269,6 +273,22 @@ public class Cannon {
         base the velocity off of the direction that the cannon is facing
 
         */
+
+
+        //Explodes on contact
+
+        new BukkitRunnable(){
+            @Override
+            public void run(){
+
+                if(creeper.isOnGround()) {
+                    creeper.getWorld().createExplosion(creeper.getLocation(), (float) 5);
+                    creeper.remove();
+                    cancel();
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 20, 0);
+
         return true;
 
     }
@@ -288,9 +308,7 @@ public class Cannon {
     }
 
     private boolean hasMaxAmmo() {
-        if (getAmmo() > 3)
-            return true;
-        else return false;
+     return getAmmo() > 3;
     }
 
     private void setAmmo(int ammo) {

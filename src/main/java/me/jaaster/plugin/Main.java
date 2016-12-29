@@ -9,7 +9,10 @@ import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.events.JoinQuit;
 import me.jaaster.plugin.game.cannons.CannonManager;
 import me.jaaster.plugin.game.events.Event;
+import me.jaaster.plugin.game.events.FireCannon;
+import me.jaaster.plugin.game.events.ReloadCannon;
 import me.jaaster.plugin.utils.Locations;
+import net.minecraft.server.v1_9_R2.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -48,9 +51,14 @@ public class Main extends JavaPlugin {
     }
 
     private void registerListeners() {
+
+
+
         PluginManager manager = getServer().getPluginManager();
         manager.registerEvents(new JoinQuit(), this);
+        manager.registerEvents(new FireCannon(), this);
         manager.registerEvents(new Event(), this);
+        manager.registerEvents(new ReloadCannon(), this);
     }
 
     private void loadLocations() {
