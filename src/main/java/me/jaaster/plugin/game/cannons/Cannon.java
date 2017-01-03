@@ -3,14 +3,16 @@ package me.jaaster.plugin.game.cannons;
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.config.Config;
 import me.jaaster.plugin.utils.CardinalDirection;
-import net.minecraft.server.v1_9_R2.EnumParticle;
-import net.minecraft.server.v1_9_R2.PacketPlayOutWorldParticles;
+import net.minecraft.server.v1_10_R1.EnumParticle;
+import net.minecraft.server.v1_10_R1.PacketPlayOutWorldParticles;
 import org.bukkit.Bukkit;
+
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -35,6 +37,8 @@ public class Cannon {
     private CannonStatus status;
     private CardinalDirection direction;
 
+
+    private Location tip;
     private int ammo;
     private boolean loaded;
 
@@ -134,6 +138,7 @@ public class Cannon {
                         Dispenser block = new Dispenser(BlockFace.valueOf(direction.toString().replace("CardinalDirection.", "")));
                         loc.getBlock().setType(mat);
                         loc.getBlock().setData(block.getData());
+                        tip = loc;
 
                     } else {
                         loc.getBlock().setType(mat);
@@ -261,8 +266,7 @@ public class Cannon {
         if (!canFire())
             return false;
 
-
-        final Creeper creeper = location.getWorld().spawn(location, Creeper.class);
+        final Creeper creeper = tip.getWorld().spawn(tip.add(0, 1, 0), Creeper.class);
         creeper.setVelocity(getVelocity());
         //This is where the vectors and entity stuff will be made :)
         /*1 ammo = 20 blocks
@@ -289,11 +293,17 @@ public class Cannon {
             }
         }.runTaskTimer(Main.getInstance(), 20, 0);
 
+
+        ammo = 0;
+        loaded = false;
+
         return true;
 
     }
 
-    private boolean canFire() {
+
+
+    public boolean canFire() {
         if (getAmmo() < 1) return false;
 
         return isLoaded();
@@ -315,15 +325,15 @@ public class Cannon {
         this.ammo = ammo;
     }
 
-    private int getAmmo() {
+    public int getAmmo() {
         return ammo;
     }
 
-    public void load() {
-        if (isLoaded())
-            return;
+    public boolean loadSkull() {
+     if(isLoaded())
+         return false;
 
-        loaded = true;
+        return loaded = true;
     }
 
 

@@ -12,7 +12,6 @@ import me.jaaster.plugin.game.events.Event;
 import me.jaaster.plugin.game.events.FireCannon;
 import me.jaaster.plugin.game.events.ReloadCannon;
 import me.jaaster.plugin.utils.Locations;
-import net.minecraft.server.v1_9_R2.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
