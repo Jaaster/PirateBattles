@@ -14,7 +14,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Creeper;
-import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.material.Button;
 import org.bukkit.material.Dispenser;
@@ -36,11 +35,12 @@ public class Cannon {
     private Location location;
     private CannonStatus status;
     private CardinalDirection direction;
-
-
+    private Player lastPlayer;
     private Location tip;
     private int ammo;
     private boolean loaded;
+    private boolean cooldown = false;
+    private int timer = 10;
 
     public Cannon(int id, Player p) {
         this.id = id;
@@ -281,11 +281,11 @@ public class Cannon {
 
         //Explodes on contact
 
-        new BukkitRunnable(){
+        new BukkitRunnable() {
             @Override
-            public void run(){
+            public void run() {
 
-                if(creeper.isOnGround()) {
+                if (creeper.isOnGround()) {
                     creeper.getWorld().createExplosion(creeper.getLocation(), (float) 5);
                     creeper.remove();
                     cancel();
@@ -296,17 +296,39 @@ public class Cannon {
 
         ammo = 0;
         loaded = false;
-
+        startCooldown();
         return true;
 
     }
 
 
-
     public boolean canFire() {
-        if (getAmmo() < 1) return false;
+        if (getAmmo() > 0 && isLoaded() && !cooldown){
+            return true;
+        }
+        else return false;
+    }
 
-        return isLoaded();
+    public Reason why(){
+        if(!loaded)
+            return Reason.CANNONBALL;
+
+        if(ammo < 1)
+            return Reason.AMMO;
+
+        if(cooldown)
+            return Reason.COOLDOWN;
+
+
+
+
+
+        else return null;
+
+    }
+
+    public int getCooldownTime(){
+        return timer;
     }
 
     public boolean addAmmo() {
@@ -318,7 +340,7 @@ public class Cannon {
     }
 
     private boolean hasMaxAmmo() {
-     return getAmmo() > 3;
+        return getAmmo() > 3;
     }
 
     private void setAmmo(int ammo) {
@@ -330,8 +352,8 @@ public class Cannon {
     }
 
     public boolean loadSkull() {
-     if(isLoaded())
-         return false;
+        if (isLoaded())
+            return false;
 
         return loaded = true;
     }
@@ -390,5 +412,41 @@ public class Cannon {
         }
 
     }
+
+    private void startCooldown() {
+        cooldown = true;
+
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+                timer--;
+                if (timer <= 0) {
+                    timer = 10;
+                    cooldown = false;
+                    cancel();
+                    getLastPlayer().sendMessage(GREEN + "Cannon has cooled down!");
+
+                }
+
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 20);
+
+    }
+
+    private Player getLastPlayer(){
+        return lastPlayer;
+    }
+
+    public void setLastPlayer(Player p){
+        lastPlayer = p;
+    }
+
+
+
+    public enum Reason{
+        AMMO, CANNONBALL, COOLDOWN, BROKEN
+    }
+
 
 }
