@@ -8,6 +8,8 @@ import me.jaaster.plugin.config.Config;
 import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.events.JoinQuit;
 import me.jaaster.plugin.game.cannons.CannonManager;
+import me.jaaster.plugin.game.core.GameStatus;
+import me.jaaster.plugin.game.core.GameThread;
 import me.jaaster.plugin.game.events.Event;
 import me.jaaster.plugin.game.events.FireCannon;
 import me.jaaster.plugin.game.events.ReloadCannon;
@@ -33,9 +35,11 @@ public class Main extends JavaPlugin {
     private String title = GRAY + "" + BOLD + "[" + LIGHT_PURPLE + "PirateBattles" + GRAY + "" + BOLD + "]: " + GRAY + "";
     private Config.RConfig cannonConfig;
 
+    private GameStatus status;
+
     @Override
     public void onEnable() {
-
+        status = GameStatus.WAITING;
         instance = this;
         registerConfigs();
         registerListeners();
@@ -43,6 +47,7 @@ public class Main extends JavaPlugin {
         loadCommands();
         registerPlayerData();
         CannonManager.registerCannons();
+        GameThread.start();
     }
 
     @Override
@@ -113,5 +118,13 @@ public class Main extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
 
+    }
+
+    public GameStatus getStatus(){
+        return status;
+    }
+
+    public void setStatus(GameStatus status){
+        this.status = status;
     }
 }

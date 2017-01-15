@@ -19,21 +19,5 @@ public class CaptianEvent implements Listener{
 
     }
 
-    public void spawnBat(Player p){
-        if(!PlayerDataManager.get(p).getSpecialClass().equals(SpecialClasses.CAPTIAN))
-            return;
-
-
-
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-
-
-
-            }
-
-        }.runTaskTimer(Main.getInstance(), 0, 20);
-    }
 
 }

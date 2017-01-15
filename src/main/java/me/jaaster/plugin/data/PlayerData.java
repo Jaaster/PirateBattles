@@ -2,6 +2,7 @@ package me.jaaster.plugin.data;
 
 import me.jaaster.plugin.game.classes.SpecialClasses;
 import me.jaaster.plugin.utils.Team;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ public class PlayerData {
     private UUID uuid;
     private Team team;
     private SpecialClasses pClass;
+    private Player p;
     PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -37,6 +39,8 @@ public class PlayerData {
         return pClass;
     }
 
-
+    public Player getPlayer(){
+        return p;
+    }
 
 }

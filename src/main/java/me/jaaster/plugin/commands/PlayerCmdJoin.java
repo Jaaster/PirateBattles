@@ -2,8 +2,8 @@ package me.jaaster.plugin.commands;
 
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.data.PlayerDataManager;
-import me.jaaster.plugin.game.GameManager;
 import me.jaaster.plugin.utils.Team;
+import me.jaaster.plugin.utils.TeamManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,7 +36,7 @@ public class PlayerCmdJoin implements CommandExecutor {
 
         if (team == null) {
             if (args[0].equals("lobby")) {
-                GameManager.joinLobby(p);
+                TeamManager.joinTeam(p, Team.LOBBY);
                 return true;
             }
         } else if (team.equals(Team.LOBBY)) {
@@ -55,16 +55,16 @@ public class PlayerCmdJoin implements CommandExecutor {
         if (!team.equals(Team.LOBBY) && !args[0].equalsIgnoreCase("lobby")) {
 
             p.sendMessage(Main.getInstance().getTitle() + "You must be in the lobby in order to do that.");
-            return false;
+            return true;
         } else if (args[0].equalsIgnoreCase("lobby")) {
-            GameManager.joinTeam(Team.LOBBY, p);
+            TeamManager.joinTeam(p, Team.LOBBY);
         }
 
 
         if (!args[0].equalsIgnoreCase("red") && !args[0].equalsIgnoreCase("blue"))
             return false;
 
-        GameManager.joinTeam(Team.valueOf(args[0].toUpperCase()), p);
+     TeamManager.joinTeam(p, Team.valueOf(args[0].toUpperCase()));
         return true;
     }
 }

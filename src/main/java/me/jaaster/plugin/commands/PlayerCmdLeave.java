@@ -2,8 +2,8 @@ package me.jaaster.plugin.commands;
 
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.data.PlayerDataManager;
-import me.jaaster.plugin.game.GameManager;
 import me.jaaster.plugin.utils.Team;
+import me.jaaster.plugin.utils.TeamManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -34,7 +34,7 @@ public class PlayerCmdLeave implements CommandExecutor {
             return true;
         }
 
-        GameManager.leaveTeam(p);
+        TeamManager.leaveTeam(p);
         return true;
     }
 }
