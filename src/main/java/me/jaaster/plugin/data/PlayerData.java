@@ -1,5 +1,6 @@
 package me.jaaster.plugin.data;
 
+import me.jaaster.plugin.game.classes.SpecialClasses;
 import me.jaaster.plugin.utils.Team;
 
 import java.util.UUID;
@@ -11,7 +12,7 @@ public class PlayerData {
 
     private UUID uuid;
     private Team team;
-
+    private SpecialClasses pClass;
     PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -27,6 +28,15 @@ public class PlayerData {
     public Team getTeam() {
         return team;
     }
+
+    public void setClass(SpecialClasses c){
+        pClass = c;
+    }
+
+    public SpecialClasses getSpecialClass(){
+        return pClass;
+    }
+
 
 
 }
