@@ -6,23 +6,27 @@ import me.jaaster.plugin.commands.PlayerCmdJoin;
 import me.jaaster.plugin.commands.PlayerCmdLeave;
 import me.jaaster.plugin.config.Config;
 import me.jaaster.plugin.data.PlayerDataManager;
-import me.jaaster.plugin.events.JoinQuit;
+import me.jaaster.plugin.game.events.*;
 import me.jaaster.plugin.game.cannons.CannonManager;
 import me.jaaster.plugin.game.core.GameStatus;
 import me.jaaster.plugin.game.core.GameThread;
-import me.jaaster.plugin.game.events.Event;
-import me.jaaster.plugin.game.events.FireCannon;
-import me.jaaster.plugin.game.events.ReloadCannon;
 import me.jaaster.plugin.utils.Locations;
+import net.minecraft.server.v1_10_R1.BlockPistonExtension;
+import org.apache.commons.lang.ClassUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Firework;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static org.bukkit.ChatColor.*;
 
@@ -34,11 +38,12 @@ public class Main extends JavaPlugin {
     private static Main instance;
     private String title = GRAY + "" + BOLD + "[" + LIGHT_PURPLE + "PirateBattles" + GRAY + "" + BOLD + "]: " + GRAY + "";
     private Config.RConfig cannonConfig;
-
+    private PluginManager manager;
     private GameStatus status;
 
     @Override
     public void onEnable() {
+        manager = Bukkit.getServer().getPluginManager();
         status = GameStatus.WAITING;
         instance = this;
         registerConfigs();
@@ -47,23 +52,44 @@ public class Main extends JavaPlugin {
         loadCommands();
         registerPlayerData();
         CannonManager.registerCannons();
-        GameThread.start();
+        GameThread gameThread = new GameThread();
+        gameThread.start();
     }
 
     @Override
     public void onDisable() {
+        clear();
+    }
 
+    private void clear(){
+        for(Entity entity: Bukkit.getWorld("world").getEntities()){
+            if(entity instanceof Player)
+                continue;
+            entity.remove();
+        }
     }
 
     private void registerListeners() {
 
 
-
-        PluginManager manager = getServer().getPluginManager();
         manager.registerEvents(new JoinQuit(), this);
         manager.registerEvents(new FireCannon(), this);
         manager.registerEvents(new Event(), this);
         manager.registerEvents(new ReloadCannon(), this);
+        manager.registerEvents(new Death(), this);
+        manager.registerEvents(new DamageEvents(), this);
+        manager.registerEvents(new CaptianEvent(), this);
+
+    }
+
+    private <T> boolean implementsListener(T clazz){
+        for(Class i: clazz.getClass().getInterfaces()){
+            if(i.equals(Listener.class))
+                return true;
+
+        }
+
+        return false;
     }
 
     private void loadLocations() {

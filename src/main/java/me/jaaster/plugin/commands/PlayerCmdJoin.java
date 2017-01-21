@@ -3,7 +3,7 @@ package me.jaaster.plugin.commands;
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.utils.Team;
-import me.jaaster.plugin.utils.TeamManager;
+import me.jaaster.plugin.data.TeamManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

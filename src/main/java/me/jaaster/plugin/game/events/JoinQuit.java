@@ -1,11 +1,15 @@
-package me.jaaster.plugin.events;
+package me.jaaster.plugin.game.events;
 
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.data.PlayerDataManager;
+import me.jaaster.plugin.game.core.GameStatus;
+import me.jaaster.plugin.utils.Locations;
 import me.jaaster.plugin.utils.Team;
-import me.jaaster.plugin.utils.TeamManager;
+import me.jaaster.plugin.data.TeamManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -22,6 +26,27 @@ public class JoinQuit implements Listener {
         PlayerDataManager.create(e.getPlayer());
         if (Main.getInstance().getConfig().getBoolean("LobbyOnJoin")) {
             TeamManager.joinTeam(e.getPlayer(), Team.LOBBY);
+        }
+
+    }
+
+
+    @EventHandler
+    public void onPlayerMoveEvent(PlayerMoveEvent e) {
+        Player p = e.getPlayer();
+        if (Main.getInstance().getStatus().equals(GameStatus.INGAME))
+            return;
+
+
+        Team team = PlayerDataManager.get(p).getTeam();
+
+        if(team == null || team.equals(Team.LOBBY))
+            return;
+
+
+        if(p.getLocation().distance(Locations.getLocation(team)) > 2){
+            p.teleport(Locations.getLocation(team));
+            p.sendMessage(ChatColor.RED + "You must wait for the game to start");
         }
 
     }

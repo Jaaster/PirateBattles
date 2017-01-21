@@ -1,7 +1,10 @@
-package me.jaaster.plugin.utils;
+package me.jaaster.plugin.data;
 
 import me.jaaster.plugin.data.PlayerData;
 import me.jaaster.plugin.data.PlayerDataManager;
+import me.jaaster.plugin.game.classes.SpecialClasses;
+import me.jaaster.plugin.utils.Locations;
+import me.jaaster.plugin.utils.Team;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,7 +21,7 @@ public class TeamManager {
     public static void joinTeam(Player p, Team t) {
         p.teleport(Locations.getLocation(t));
         PlayerDataManager.get(p).setTeam(t);
-
+        PlayerDataManager.get(p).setClass(SpecialClasses.CAPTIAN);
 
 
         if(t.equals(Team.LOBBY)) {
@@ -26,6 +29,7 @@ public class TeamManager {
             return;
         }
         p.sendMessage("Joined " + ChatColor.valueOf(t.toString().replace("Team.", "")) + t.toString().replace(".", " ") + " TEAM!");
+
 
 
     }
@@ -57,6 +61,9 @@ public class TeamManager {
         ArrayList<Player> list = new ArrayList<>();
 
         for(Player p: Bukkit.getOnlinePlayers()){
+            if(PlayerDataManager.get(p).getTeam() == null)
+                continue;
+
             if(PlayerDataManager.get(p).getTeam().equals(team))
                 list.add(p);
         }
