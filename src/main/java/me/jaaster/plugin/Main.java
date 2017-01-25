@@ -6,11 +6,13 @@ import me.jaaster.plugin.commands.PlayerCmdJoin;
 import me.jaaster.plugin.commands.PlayerCmdLeave;
 import me.jaaster.plugin.config.Config;
 import me.jaaster.plugin.data.PlayerDataManager;
+import me.jaaster.plugin.data.TeamManager;
 import me.jaaster.plugin.game.events.*;
 import me.jaaster.plugin.game.cannons.CannonManager;
 import me.jaaster.plugin.game.core.GameStatus;
 import me.jaaster.plugin.game.core.GameThread;
 import me.jaaster.plugin.utils.Locations;
+import me.jaaster.plugin.utils.Team;
 import net.minecraft.server.v1_10_R1.BlockPistonExtension;
 import org.apache.commons.lang.ClassUtils;
 import org.bukkit.Bukkit;
@@ -54,6 +56,15 @@ public class Main extends JavaPlugin {
         CannonManager.registerCannons();
         GameThread gameThread = new GameThread();
         gameThread.start();
+
+
+
+        for(Player p: Bukkit.getOnlinePlayers()){
+            PlayerDataManager.create(p);
+            TeamManager.joinTeam(p, Team.LOBBY);
+
+
+        }
     }
 
     @Override
