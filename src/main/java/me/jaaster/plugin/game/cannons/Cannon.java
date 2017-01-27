@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
@@ -144,12 +145,16 @@ public class Cannon {
                         loc.getBlock().setType(mat);
                     }
                     buildEffect(loc);
-                } else cancel();
+                } else {
+                    setStatus(CannonStatus.WAITING);
+                    cancel();
+
+                }
 
             }
         }.runTaskTimer(Main.getInstance(), 0, 20);
 
-        setStatus(CannonStatus.WAITING);
+
 
 
     }
@@ -359,7 +364,7 @@ public class Cannon {
     }
 
 
-    private boolean isLoaded() {
+    public boolean isLoaded() {
         return loaded;
     }
 
@@ -415,7 +420,7 @@ public class Cannon {
 
     private void startCooldown() {
         cooldown = true;
-
+        setStatus(CannonStatus.COOLDOWN);
         new BukkitRunnable() {
 
             @Override
@@ -425,8 +430,8 @@ public class Cannon {
                     timer = 10;
                     cooldown = false;
                     cancel();
-                    getLastPlayer().sendMessage(GREEN + "Cannon has cooled down!");
-
+                    getLocation().getWorld().playSound(getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1);
+                    setStatus(CannonStatus.WAITING);
                 }
 
             }

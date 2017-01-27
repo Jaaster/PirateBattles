@@ -3,6 +3,7 @@ package me.jaaster.plugin.game.events;
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.game.cannons.Cannon;
 import me.jaaster.plugin.game.cannons.CannonManager;
+import me.jaaster.plugin.game.cannons.CannonStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,6 +16,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Plado on 12/28/2016.
@@ -38,6 +44,7 @@ String title = Main.getInstance().getTitle();
     @EventHandler
     public void addGunPowder(PlayerInteractEvent e){
 
+
         if(!e.getAction().equals(Action.RIGHT_CLICK_BLOCK))
             return;
 
@@ -55,6 +62,12 @@ String title = Main.getInstance().getTitle();
 
 
         Cannon cannon = CannonManager.getCannon(e.getClickedBlock().getLocation());
+        Collection<CannonStatus> list = new ArrayList<>();
+        list.add(CannonStatus.BUILDING);
+        list.add(CannonStatus.DEAD);
+        list.add(CannonStatus.COOLDOWN);
+        if(list.contains(cannon.getStatus()))
+            return;
 
         ItemStack item = e.getPlayer().getItemInHand();
         Player p = e.getPlayer();
@@ -66,9 +79,6 @@ String title = Main.getInstance().getTitle();
                 if(item.getAmount() < 1)
                    item.setType(Material.AIR);
                 p.setItemInHand(item);
-                p.sendMessage(title + ChatColor.GREEN + "Loaded CannonBall 1/1");
-            }else{
-                p.sendMessage(title + "Skull has already been loaded 1/1");
             }
         }
 
@@ -84,13 +94,9 @@ String title = Main.getInstance().getTitle();
             if(item.getAmount() < 1)
                 item.setType(Material.AIR);
 
-            e.getPlayer().sendMessage(title + ChatColor.GREEN + "Added powder " + cannon.getAmmo() + "/" + "4");
             e.getPlayer().setItemInHand(item);
 
             //loaded cannon
-        }else {
-            e.getPlayer().sendMessage(title + "Full of powder " + cannon.getAmmo() + "/" + "4");
-            //cannon is full
         }
 
         e.setCancelled(true);

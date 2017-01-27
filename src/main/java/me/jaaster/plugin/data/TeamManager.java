@@ -1,8 +1,7 @@
 package me.jaaster.plugin.data;
 
-import me.jaaster.plugin.data.PlayerData;
-import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.game.classes.SpecialClasses;
+import me.jaaster.plugin.game.events.SpecialClassEvents.CaptianEvent;
 import me.jaaster.plugin.utils.Locations;
 import me.jaaster.plugin.utils.Team;
 import net.md_5.bungee.api.ChatColor;
@@ -21,9 +20,8 @@ public class TeamManager {
     public static void joinTeam(Player p, Team t) {
         p.teleport(Locations.getLocation(t));
         PlayerDataManager.get(p).setTeam(t);
-        PlayerDataManager.get(p).setClass(SpecialClasses.CAPTIAN);
-
-
+        setClass(p,t);
+        p.setHealth(5);
         if(t.equals(Team.LOBBY)) {
             p.sendMessage("Joined " + ChatColor.YELLOW + "Lobby!");
             return;
@@ -33,6 +31,43 @@ public class TeamManager {
 
 
     }
+
+    private static void setClass(Player p, Team t){
+        SpecialClasses sp[] = SpecialClasses.values();
+
+        SpecialClasses clazz = sp[TeamManager.getTeamPlayers(t).size()];
+
+        PlayerDataManager.get(p).setSpecialClass(clazz);
+
+        switch (clazz){
+
+            case CAPTAIN:
+
+                break;
+            case FIRST_MATE:
+
+                break;
+            case BOATS_SWAIN:
+
+                break;
+            case  SURGEON:
+
+                break;
+            case  STRIKER:
+
+                break;
+            case POWWDER_MONKEY:
+
+                break;
+
+
+
+        }
+
+
+    }
+
+
 
     public static void leaveTeam(Player p) {
 

@@ -28,8 +28,9 @@ public class Config
 
         RConfig c = new RConfig(id, file);
         for (RConfig x : configs) {
-            if (x.equals(c))
+            if (x.getName().equals(c.getName())) {
                 return false;
+            }
         }
 
         configs.add(c);
@@ -144,7 +145,7 @@ public class Config
             save(file);
         }
 
-        public void load() throws InvalidConfigurationException, FileNotFoundException, IOException {
+        public void load() throws InvalidConfigurationException, IOException {
             load(file);
         }
 

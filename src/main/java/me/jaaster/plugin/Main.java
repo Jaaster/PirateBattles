@@ -7,14 +7,18 @@ import me.jaaster.plugin.commands.PlayerCmdLeave;
 import me.jaaster.plugin.config.Config;
 import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.data.TeamManager;
+import me.jaaster.plugin.game.classes.Captain;
+import me.jaaster.plugin.game.core.PlayerBoard;
 import me.jaaster.plugin.game.events.*;
 import me.jaaster.plugin.game.cannons.CannonManager;
 import me.jaaster.plugin.game.core.GameStatus;
 import me.jaaster.plugin.game.core.GameThread;
+import me.jaaster.plugin.game.events.SpecialClassEvents.BoatswainEvent;
+import me.jaaster.plugin.game.events.SpecialClassEvents.CaptianEvent;
+import me.jaaster.plugin.game.events.SpecialClassEvents.FirstMateEvent;
+import me.jaaster.plugin.game.events.SpecialClassEvents.SurgeonEvent;
 import me.jaaster.plugin.utils.Locations;
 import me.jaaster.plugin.utils.Team;
-import net.minecraft.server.v1_10_R1.BlockPistonExtension;
-import org.apache.commons.lang.ClassUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -26,10 +30,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import static org.bukkit.ChatColor.*;
 
 /**
@@ -39,7 +39,6 @@ public class Main extends JavaPlugin {
 
     private static Main instance;
     private String title = GRAY + "" + BOLD + "[" + LIGHT_PURPLE + "PirateBattles" + GRAY + "" + BOLD + "]: " + GRAY + "";
-    private Config.RConfig cannonConfig;
     private PluginManager manager;
     private GameStatus status;
 
@@ -56,6 +55,8 @@ public class Main extends JavaPlugin {
         CannonManager.registerCannons();
         GameThread gameThread = new GameThread();
         gameThread.start();
+        new PlayerBoard();
+        loadClasses();
 
 
 
@@ -90,18 +91,12 @@ public class Main extends JavaPlugin {
         manager.registerEvents(new Death(), this);
         manager.registerEvents(new DamageEvents(), this);
         manager.registerEvents(new CaptianEvent(), this);
+        manager.registerEvents(new BoatswainEvent(), this);
+        manager.registerEvents(new FirstMateEvent(), this);
+        manager.registerEvents(new SurgeonEvent(), this);
 
     }
 
-    private <T> boolean implementsListener(T clazz){
-        for(Class i: clazz.getClass().getInterfaces()){
-            if(i.equals(Listener.class))
-                return true;
-
-        }
-
-        return false;
-    }
 
     private void loadLocations() {
 
@@ -120,6 +115,14 @@ public class Main extends JavaPlugin {
         }
 
     }
+
+
+    private void loadClasses(){
+        Captain captain = new Captain();
+
+
+    }
+
 
     private void registerPlayerData() {
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -150,7 +153,12 @@ public class Main extends JavaPlugin {
         //Normal config
 
         Config.registerConfig("CannonConfig", "CannonConfig.yml", this);
-        cannonConfig = Config.getConfig("CannonConfig");
+        Config.registerConfig("Kits", "Kits.yml", this);
+
+        System.out.println(Config.getConfig("Kits").equals(Config.getConfig("CannonConfig")));
+
+
+
 
         getConfig().options().copyDefaults(true);
         saveConfig();

@@ -1,16 +1,11 @@
-package me.jaaster.plugin.game.events;
+package me.jaaster.plugin.game.events.SpecialClassEvents;
 
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.data.PlayerData;
 import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.game.classes.SpecialClasses;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_10_R1.MinecraftKey;
-import net.minecraft.server.v1_10_R1.PacketPlayOutNamedSoundEffect;
-import net.minecraft.server.v1_10_R1.SoundCategory;
-import net.minecraft.server.v1_10_R1.SoundEffect;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
@@ -22,10 +17,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 
 /**
@@ -52,7 +45,10 @@ public class CaptianEvent implements Listener {
       if(!e.getAction().equals(Action.RIGHT_CLICK_AIR))
           return;
 
-        if(!PlayerDataManager.get(p).getSpecialClass().equals(SpecialClasses.CAPTIAN))
+        if(!PlayerDataManager.get(p).hasSpecialClass())
+            return;
+
+        if(!PlayerDataManager.get(p).getSpecialClass().equals(SpecialClasses.CAPTAIN))
             return;
         if(cooldown.containsKey(p.getName())) {
 
@@ -107,7 +103,7 @@ public class CaptianEvent implements Listener {
                 } else {
                     cooldown.remove(p.getName());
                     p.getInventory().addItem(createGun(0));
-
+                    readySound(p);
 
 
                 }
@@ -125,7 +121,7 @@ public class CaptianEvent implements Listener {
             public void run() {
                 for (PlayerData pd : PlayerDataManager.get()) {
                     if (pd.hasSpecialClass()) {
-                        if (pd.getSpecialClass().equals(SpecialClasses.CAPTIAN)) {
+                        if (pd.getSpecialClass().equals(SpecialClasses.CAPTAIN)) {
                             if (map.containsKey(pd.getName())) {
 
 
@@ -159,31 +155,18 @@ public class CaptianEvent implements Listener {
     }
 
     private void fireSound(CraftPlayer p){
-        SoundEffect effect = SoundEffect.a.get(new MinecraftKey("block.piston.extend"));
-        Location l = p.getLocation();
-
-        float volume = 1f; //1 = 100%
-        float pitch = 0.5f; //Float between 0.5 and 2.0
-        PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(effect, SoundCategory.BLOCKS, l.getX(), l.getY(), l.getZ(),  volume, pitch);
-
-        p.getHandle().playerConnection.sendPacket(packet);
+        p.playSound(p.getLocation(), Sound.BLOCK_PISTON_EXTEND, 1f, 0.5f);
     }
 
     private void errorSound(CraftPlayer p){
-        SoundEffect effect = SoundEffect.a.get(new MinecraftKey("entity.generic.extinguish_fire"));
-        Location l = p.getLocation();
-
-
-        float volume = 1f; //1 = 100%
-        float pitch = 1.5f; //Float between 0.5 and 2.0
-        PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(effect, SoundCategory.AMBIENT, l.getX(), l.getY(), l.getZ(),  volume, pitch);
-
-        p.getHandle().playerConnection.sendPacket(packet);
+        p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 0.5f);
     }
 
 
 
-    private void readySound(){}
+    private void readySound(Player p){
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 0.5f);
+    }
 
 
 
