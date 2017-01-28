@@ -1,13 +1,11 @@
 package me.jaaster.plugin;
 
-import me.jaaster.plugin.commands.AdminCmdCannons;
-import me.jaaster.plugin.commands.AdminCommands;
-import me.jaaster.plugin.commands.PlayerCmdJoin;
-import me.jaaster.plugin.commands.PlayerCmdLeave;
-import me.jaaster.plugin.config.Config;
+import me.jaaster.plugin.commands.*;
+import me.jaaster.plugin.config.MyConfig;
+import me.jaaster.plugin.config.MyConfigManager;
 import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.data.TeamManager;
-import me.jaaster.plugin.game.classes.Captain;
+import me.jaaster.plugin.game.classes.*;
 import me.jaaster.plugin.game.core.PlayerBoard;
 import me.jaaster.plugin.game.events.*;
 import me.jaaster.plugin.game.cannons.CannonManager;
@@ -25,10 +23,11 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
+import java.util.HashMap;
 
 import static org.bukkit.ChatColor.*;
 
@@ -41,9 +40,11 @@ public class Main extends JavaPlugin {
     private String title = GRAY + "" + BOLD + "[" + LIGHT_PURPLE + "PirateBattles" + GRAY + "" + BOLD + "]: " + GRAY + "";
     private PluginManager manager;
     private GameStatus status;
-
+    private MyConfigManager configManager;
+    private HashMap<SpecialClasses, SpecialClass> classes;
     @Override
     public void onEnable() {
+        configManager = new MyConfigManager(this);
         manager = Bukkit.getServer().getPluginManager();
         status = GameStatus.WAITING;
         instance = this;
@@ -51,6 +52,7 @@ public class Main extends JavaPlugin {
         registerListeners();
         loadLocations();
         loadCommands();
+        loadClasses();
         registerPlayerData();
         CannonManager.registerCannons();
         GameThread gameThread = new GameThread();
@@ -59,8 +61,7 @@ public class Main extends JavaPlugin {
         loadClasses();
 
 
-
-        for(Player p: Bukkit.getOnlinePlayers()){
+        for (Player p : Bukkit.getOnlinePlayers()) {
             PlayerDataManager.create(p);
             TeamManager.joinTeam(p, Team.LOBBY);
 
@@ -73,9 +74,9 @@ public class Main extends JavaPlugin {
         clear();
     }
 
-    private void clear(){
-        for(Entity entity: Bukkit.getWorld("world").getEntities()){
-            if(entity instanceof Player)
+    private void clear() {
+        for (Entity entity : Bukkit.getWorld("world").getEntities()) {
+            if (entity instanceof Player)
                 continue;
             entity.remove();
         }
@@ -117,12 +118,6 @@ public class Main extends JavaPlugin {
     }
 
 
-    private void loadClasses(){
-        Captain captain = new Captain();
-
-
-    }
-
 
     private void registerPlayerData() {
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -131,6 +126,7 @@ public class Main extends JavaPlugin {
     }
 
     private void loadCommands() {
+        getCommand("setkit").setExecutor(new AdminCmdKits());
         getCommand("pb").setExecutor(new AdminCommands());
         getCommand("join").setExecutor(new PlayerCmdJoin());
         getCommand("leave").setExecutor(new PlayerCmdLeave());
@@ -141,8 +137,8 @@ public class Main extends JavaPlugin {
         return instance;
     }
 
-    public Config.RConfig getConfigFromName(String name) {
-        return Config.getConfig(name);
+    public MyConfig getConfigFromName(String name) {
+        return configManager.getNewConfig(name + ".yml");
     }
 
     public String getTitle() {
@@ -151,13 +147,8 @@ public class Main extends JavaPlugin {
 
     private void registerConfigs() {
         //Normal config
-
-        Config.registerConfig("CannonConfig", "CannonConfig.yml", this);
-        Config.registerConfig("Kits", "Kits.yml", this);
-
-        System.out.println(Config.getConfig("Kits").equals(Config.getConfig("CannonConfig")));
-
-
+        configManager.getNewConfig("CannonConfig.yml");
+        configManager.getNewConfig("Kits.yml");
 
 
         getConfig().options().copyDefaults(true);
@@ -165,11 +156,32 @@ public class Main extends JavaPlugin {
 
     }
 
-    public GameStatus getStatus(){
+    private void loadClasses(){
+        classes = new HashMap<>();
+
+        classes.put(SpecialClasses.CAPTAIN, new Captain());
+        classes.put(SpecialClasses.FIRST_MATE,new FirstMate());
+        classes.put(SpecialClasses.SURGEON,new Surgeon());
+        classes.put(SpecialClasses.STRIKER,new Striker());
+        classes.put(SpecialClasses.POWDER_MONKEY,new PowderMonkey());
+
+
+
+
+    }
+
+    public SpecialClass getClass(SpecialClasses sp){
+
+         return classes.get(sp);
+
+    }
+
+
+    public GameStatus getStatus() {
         return status;
     }
 
-    public void setStatus(GameStatus status){
+    public void setStatus(GameStatus status) {
         this.status = status;
     }
 }

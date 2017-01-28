@@ -1,7 +1,7 @@
 package me.jaaster.plugin.game.cannons;
 
 import me.jaaster.plugin.Main;
-import me.jaaster.plugin.config.Config;
+import me.jaaster.plugin.config.MyConfig;
 import me.jaaster.plugin.utils.CardinalDirection;
 import net.minecraft.server.v1_10_R1.EnumParticle;
 import net.minecraft.server.v1_10_R1.PacketPlayOutWorldParticles;
@@ -61,7 +61,7 @@ public class Cannon {
     }
 
     private void setupCannonsFromConfig() {
-        Config.RConfig config = Main.getInstance().getConfigFromName("CannonConfig");
+        MyConfig config = Main.getInstance().getConfigFromName("CannonConfig");
         ConfigurationSection sec = config.getConfigurationSection("Cannon" + id).getConfigurationSection("Location");
         location = new Location(Bukkit.getWorld(sec.getString("World")), sec.getDouble("X"), sec.getDouble("Y"), sec.getDouble("Z"));
         direction = CardinalDirection.valueOf(sec.getString("Direction"));
@@ -71,7 +71,7 @@ public class Cannon {
 
 
     private void setupNewCannon(Player p) {
-        Config.RConfig config = Main.getInstance().getConfigFromName("CannonConfig");
+        MyConfig config = Main.getInstance().getConfigFromName("CannonConfig");
         int i = id - 1;
         if (i != -1 && i < 0) {
             p.sendMessage(Main.getInstance().getTitle() + "You cannot set a " + BLUE + "Cannon " + (id - 1) + GRAY + " because it is less than 0");
@@ -103,11 +103,8 @@ public class Cannon {
         loc.set("Y", location.getBlockY());
         loc.set("Z", location.getZ());
 
-        try {
-            config.save();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            config.saveConfig();
+
 
         CannonManager.registerCannon(this);
 

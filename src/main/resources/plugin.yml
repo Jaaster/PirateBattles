@@ -20,3 +20,7 @@ commands:
     description: For setting the locations of Cannons
     usage: /setcannon
     permissions: piratebattle.admin
+  setkit:
+      description: For setting the kits of classes
+      usage: /setkit [classname]
+      permissions: piratebattle.admin

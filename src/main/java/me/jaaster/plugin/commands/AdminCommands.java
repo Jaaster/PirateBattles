@@ -1,7 +1,6 @@
 package me.jaaster.plugin.commands;
 
 import me.jaaster.plugin.Main;
-import me.jaaster.plugin.config.Config;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;

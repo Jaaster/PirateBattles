@@ -22,4 +22,17 @@ public class ItemStackMaker {
 
         return item;
     }
+
+
+    public static ItemStack make(Material mat, String name, int i){
+
+        ItemStack item = new ItemStack(mat, i);
+
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.setDisplayName(name);
+
+        item.setItemMeta(itemMeta);
+
+        return item;
+    }
 }

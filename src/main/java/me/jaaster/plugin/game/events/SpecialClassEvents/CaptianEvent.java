@@ -3,6 +3,7 @@ package me.jaaster.plugin.game.events.SpecialClassEvents;
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.data.PlayerData;
 import me.jaaster.plugin.data.PlayerDataManager;
+import me.jaaster.plugin.game.classes.Captain;
 import me.jaaster.plugin.game.classes.SpecialClasses;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
@@ -59,7 +60,7 @@ public class CaptianEvent implements Listener {
 
 
 
-        if (e.getPlayer().getItemInHand().equals(createGun(0))) {
+        if (e.getPlayer().getItemInHand().equals(Captain.createGun(0))) {
             cooldown.put(p.getName(), 5);
 
             Location loc = p.getLocation().add(0, 1.5, 0);
@@ -76,7 +77,7 @@ public class CaptianEvent implements Listener {
         }
 
         for(int i = 5; i> 0;i--){
-            if(e.getPlayer().getItemInHand().equals(createGun(i)))
+            if(e.getPlayer().getItemInHand().equals(Captain.createGun(i)))
                 return;
         }
 
@@ -91,18 +92,18 @@ public class CaptianEvent implements Listener {
                     cancel();
                 return;
             }
-                p.getInventory().remove(createGun(0));
+                p.getInventory().remove(Captain.createGun(0));
 
                 if(cooldown.get(p.getName()) > 0) {
 
                     cooldown.put(p.getName(), cooldown.get(p.getName()) - 1);
-                    p.getInventory().remove(createGun(cooldown.get(p.getName())+1));
-                    p.getInventory().addItem(createGun(cooldown.get(p.getName())));
+                    p.getInventory().remove(Captain.createGun(cooldown.get(p.getName())+1));
+                    p.getInventory().addItem(Captain.createGun(cooldown.get(p.getName())));
                     p.getWorld().playEffect(p.getLocation(), Effect.CLICK1, 1);
 
                 } else {
                     cooldown.remove(p.getName());
-                    p.getInventory().addItem(createGun(0));
+                    p.getInventory().addItem(Captain.createGun(0));
                     readySound(p);
 
 
@@ -131,7 +132,6 @@ public class CaptianEvent implements Listener {
                             } else {
                                 Bat bat = pd.getPlayer().getWorld().spawn(pd.getPlayer().getLocation(), Bat.class);
                                 map.put(pd.getName(), bat);
-                                pd.getPlayer().setItemInHand(createGun(0));
                             }
                         }
                     }
@@ -142,17 +142,6 @@ public class CaptianEvent implements Listener {
 
     }
 
-    private ItemStack createGun(int cooldown) {
-        ItemStack gun = new ItemStack(Material.WOOD_SPADE);
-
-        ItemMeta meta = gun.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD  + "> GUN < : "+ cooldown);
-
-        gun.setItemMeta(meta);
-
-        return gun;
-
-    }
 
     private void fireSound(CraftPlayer p){
         p.playSound(p.getLocation(), Sound.BLOCK_PISTON_EXTEND, 1f, 0.5f);

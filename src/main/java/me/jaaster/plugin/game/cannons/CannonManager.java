@@ -2,13 +2,11 @@ package me.jaaster.plugin.game.cannons;
 
 
 import me.jaaster.plugin.Main;
-import me.jaaster.plugin.config.Config;
+import me.jaaster.plugin.config.MyConfig;
 import org.bukkit.Location;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by Plado on 8/26/2016.
@@ -26,7 +24,7 @@ public class CannonManager {
     }
 
     public static void registerCannons() {
-        Config.RConfig config = Main.getInstance().getConfigFromName("CannonConfig");
+        MyConfig config = Main.getInstance().getConfigFromName("CannonConfig");
         for (int i = 0; i < 50; i++) {
             if(config.getConfigurationSection("Cannon" + i) == null)
                 return;

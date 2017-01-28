@@ -23,10 +23,12 @@ public class PlayerCmdJoin implements CommandExecutor {
             return false;
         Player p = (Player) sender;
         Team team = PlayerDataManager.get(p).getTeam();
+        /*
         if (!p.hasPermission("piratebattles.join") && !p.isOp()) {
             p.sendMessage(Main.getInstance().getTitle() + "You do not have permission to do that");
             return false;
         }
+        */
 
         if (!command.getLabel().equalsIgnoreCase("join"))
             return false;

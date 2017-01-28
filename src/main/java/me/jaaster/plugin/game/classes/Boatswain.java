@@ -10,6 +10,10 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Boatswain extends SpecialClass{
 
+    public Boatswain(){
+        getKitFromConfig(SpecialClasses.BOATS_SWAIN);
+    }
+
     public static ItemStack getWrench(){
         return ItemStackMaker.make(Material.WOOD_HOE, ChatColor.GREEN + "Wrench");
     }

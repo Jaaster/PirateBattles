@@ -1,70 +1,80 @@
 package me.jaaster.plugin.game.classes;
 
 import me.jaaster.plugin.Main;
-import me.jaaster.plugin.config.Config;
-import org.bukkit.Material;
+import me.jaaster.plugin.config.MyConfig;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by Plado on 1/27/2017.
  */
 public class SpecialClass {
 
-    private List<ItemStack> kit = new ArrayList<>();
 
-    public void setKit(List<ItemStack> items, SpecialClasses sp){
+
+    private ItemStack[] kit = new ItemStack[27];
+
+    public void setKit(ItemStack[] items, SpecialClasses sp){
+
+        MyConfig config = Main.getInstance().getConfigFromName("Kits");
+
+        //Checking and setting if null
+        ConfigurationSection sec = config.getConfigurationSection(sp.toString());
+        if(sec == null){
+            config.createSection(sp.toString());
+            config.saveConfig();
+            sec = config.getConfigurationSection(sp.toString());
+        }
+
+        for(int i = 0; i< 27;i++){
+            sec.set("Item " + i, null);
+        }
+
+        for(int i = 0; i< items.length; i++)
+        {
+            sec.set("Item " + i, items[i]);
+        }
+
+        config.saveConfig();
 
 
 
         kit = items;
     }
 
-    protected List<ItemStack> getKitFromConfig(SpecialClasses sp){
+    protected void getKitFromConfig(SpecialClasses sp){
 
-        List<ItemStack> items = new ArrayList<>();
+        ItemStack[] items = new ItemStack[27];
 
-        Config.RConfig config = Config.getConfig("Kits");
-        config.set("String", new ItemStack(Material.STONE));
+        MyConfig config = Main.getInstance().getConfigFromName("Kits");
 
-        ConfigurationSection kit = config.getConfigurationSection(sp.toString());
-        if(config.getConfigurationSection(sp.toString()) == null){
 
-            kit = config.createSection(sp.toString());
+       ConfigurationSection sec = config.getConfigurationSection(sp.toString());
+        if(sec == null){
+             config.createSection(sp.toString());
+                config.saveConfig();
+            sec = config.getConfigurationSection(sp.toString());
+        }
 
-           try {
-               config.save();
-           }catch(IOException e){
-               e.printStackTrace();
+        for(int i = 0; i< items.length; i++){
+
+           if(sec.get("Item " + i) instanceof ItemStack) {
+               items[i] = (ItemStack) sec.get("Item " + i);
            }
         }
 
-        for(Object o : kit.getValues(true).values()){
-            System.out.println(o);
-        }
 
 
+        config.saveConfig();
 
-        kit.set("ad", new ItemStack(Material.STONE));
-
-        try {
-            config.save();
-    }catch(IOException e){
-        e.printStackTrace();
-    }
-
-        return items;
+        kit = items;
 
     }
 
 
-    public List<ItemStack> getKit(){
+    public ItemStack[] getKit(){
         return kit;
 
     }
@@ -72,8 +82,14 @@ public class SpecialClass {
 
 
     public void setPlayerKit(Player p){
+        p.getInventory().clear();
+
         for(ItemStack item: kit){
+            if(item == null)
+                continue;
+
             String s = item.getType().toString();
+
             if(s.contains("HELMET")){
                 p.getInventory().setHelmet(item);
             } else if (s.contains("CHESTPLATE")){

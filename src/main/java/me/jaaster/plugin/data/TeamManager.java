@@ -1,7 +1,9 @@
 package me.jaaster.plugin.data;
 
-import me.jaaster.plugin.game.classes.SpecialClasses;
+import me.jaaster.plugin.Main;
+import me.jaaster.plugin.game.classes.*;
 import me.jaaster.plugin.game.events.SpecialClassEvents.CaptianEvent;
+import me.jaaster.plugin.game.events.SpecialClassEvents.FirstMateEvent;
 import me.jaaster.plugin.utils.Locations;
 import me.jaaster.plugin.utils.Team;
 import net.md_5.bungee.api.ChatColor;
@@ -20,6 +22,7 @@ public class TeamManager {
     public static void joinTeam(Player p, Team t) {
         p.teleport(Locations.getLocation(t));
         PlayerDataManager.get(p).setTeam(t);
+
         setClass(p,t);
         p.setHealth(5);
         if(t.equals(Team.LOBBY)) {
@@ -33,36 +36,43 @@ public class TeamManager {
     }
 
     private static void setClass(Player p, Team t){
-        SpecialClasses sp[] = SpecialClasses.values();
+        if(t.equals(Team.LOBBY))
+            return;
 
-        SpecialClasses clazz = sp[TeamManager.getTeamPlayers(t).size()];
+        SpecialClasses list[] = SpecialClasses.values();
 
-        PlayerDataManager.get(p).setSpecialClass(clazz);
+        SpecialClasses sp = SpecialClasses.SURGEON;//list[TeamManager.getTeamPlayers(t).size()-1];
 
-        switch (clazz){
+        PlayerDataManager.get(p).setSpecialClass(sp);
+        Main.getInstance().getClass(sp).setPlayerKit(p);
+
+
+        switch(sp){
 
             case CAPTAIN:
-
+                p.getInventory().addItem(Captain.createGun(0));
                 break;
             case FIRST_MATE:
-
                 break;
             case BOATS_SWAIN:
-
+                p.getInventory().addItem(Boatswain.getWrench());
                 break;
-            case  SURGEON:
-
+            case SURGEON:
+                p.getInventory().addItem(Surgeon.createCloth());
                 break;
-            case  STRIKER:
-
+            case STRIKER:
                 break;
-            case POWWDER_MONKEY:
-
+            case POWDER_MONKEY:
                 break;
-
 
 
         }
+
+
+
+
+
+        p.sendMessage(Main.getInstance().getTitle() + "You are a " + sp.toString());
 
 
     }
