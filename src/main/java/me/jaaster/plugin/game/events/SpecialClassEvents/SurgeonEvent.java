@@ -3,6 +3,7 @@ package me.jaaster.plugin.game.events.SpecialClassEvents;
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.game.classes.SpecialClasses;
+import me.jaaster.plugin.game.classes.Surgeon;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,7 +37,7 @@ public class SurgeonEvent implements Listener {
         if(!PlayerDataManager.get(healer).getSpecialClass().equals(SpecialClasses.SURGEON))
             return;
 
-        if(healer.getItemInHand().getType().equals(Material.PAPER)){
+        if(healer.getItemInHand().getType().equals(Surgeon.createCloth().getType())){
 
             healer.getItemInHand().setAmount(healer.getItemInHand().getAmount()-1);
             if(healer.getItemInHand().getAmount() <= 0)

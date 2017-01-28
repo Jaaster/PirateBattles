@@ -5,7 +5,6 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Random;
 
 /**
  * Created by Plado on 1/27/2017.
@@ -18,7 +17,6 @@ public class Surgeon extends SpecialClass {
 
 
     public static ItemStack createCloth() {
-
         return ItemStackMaker.make(Material.PAPER, ChatColor.GREEN + "Cloth", 5);
     }
 

@@ -11,10 +11,7 @@ import me.jaaster.plugin.game.events.*;
 import me.jaaster.plugin.game.cannons.CannonManager;
 import me.jaaster.plugin.game.core.GameStatus;
 import me.jaaster.plugin.game.core.GameThread;
-import me.jaaster.plugin.game.events.SpecialClassEvents.BoatswainEvent;
-import me.jaaster.plugin.game.events.SpecialClassEvents.CaptianEvent;
-import me.jaaster.plugin.game.events.SpecialClassEvents.FirstMateEvent;
-import me.jaaster.plugin.game.events.SpecialClassEvents.SurgeonEvent;
+import me.jaaster.plugin.game.events.SpecialClassEvents.*;
 import me.jaaster.plugin.utils.Locations;
 import me.jaaster.plugin.utils.Team;
 import org.bukkit.Bukkit;
@@ -95,6 +92,7 @@ public class Main extends JavaPlugin {
         manager.registerEvents(new BoatswainEvent(), this);
         manager.registerEvents(new FirstMateEvent(), this);
         manager.registerEvents(new SurgeonEvent(), this);
+        manager.registerEvents(new SoulBoundEvent(), this);
 
     }
 

@@ -41,7 +41,7 @@ public class TeamManager {
 
         SpecialClasses list[] = SpecialClasses.values();
 
-        SpecialClasses sp = SpecialClasses.SURGEON;//list[TeamManager.getTeamPlayers(t).size()-1];
+        SpecialClasses sp = SpecialClasses.CAPTAIN;//list[TeamManager.getTeamPlayers(t).size()-1];
 
         PlayerDataManager.get(p).setSpecialClass(sp);
         Main.getInstance().getClass(sp).setPlayerKit(p);
