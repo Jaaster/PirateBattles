@@ -22,8 +22,8 @@ public class TeamManager {
     public static void joinTeam(Player p, Team t) {
         p.teleport(Locations.getLocation(t));
         PlayerDataManager.get(p).setTeam(t);
+        PlayerDataManager.get(p).setSpecialClass(SpecialClasses.STRIKER);
 
-        setClass(p,t);
         p.setHealth(5);
         if(t.equals(Team.LOBBY)) {
             p.sendMessage("Joined " + ChatColor.YELLOW + "Lobby!");

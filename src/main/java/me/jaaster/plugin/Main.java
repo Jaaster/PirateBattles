@@ -93,6 +93,7 @@ public class Main extends JavaPlugin {
         manager.registerEvents(new FirstMateEvent(), this);
         manager.registerEvents(new SurgeonEvent(), this);
         manager.registerEvents(new SoulBoundEvent(), this);
+        manager.registerEvents(new StrikerEvent(), this);
 
     }
 
