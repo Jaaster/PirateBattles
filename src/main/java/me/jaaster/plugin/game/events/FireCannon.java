@@ -57,6 +57,12 @@ public class FireCannon implements Listener {
                 case CANNONBALL:
                     p.sendMessage(title + RED + "CannonBall 0/1");
                     break;
+                case BROKEN:
+                    p.sendMessage(title + RED + "Cannon is broken!");
+                    break;
+                case BUILDING:
+                    p.sendMessage(title + RED + "Cannon is building!");
+                    break;
             }
 
 

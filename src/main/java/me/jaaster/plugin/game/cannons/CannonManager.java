@@ -4,6 +4,7 @@ package me.jaaster.plugin.game.cannons;
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.config.MyConfig;
 import org.bukkit.Location;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,14 +24,35 @@ public class CannonManager {
         return cannons.get(id);
     }
 
-    public static void registerCannons() {
+    public synchronized static void registerCannons() {
         MyConfig config = Main.getInstance().getConfigFromName("CannonConfig");
         for (int i = 0; i < 50; i++) {
-            if(config.getConfigurationSection("Cannon" + i) == null)
+            if(config.getConfigurationSection("Cannon" + i) == null) {
+                checker();
                 return;
+            }
             registerCannon(new Cannon(i));
 
         }
+
+    }
+
+    private static void checker(){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                for(Cannon cannon: getCannons()){
+                    if(cannon.getStatus().equals(CannonStatus.BROKEN))
+                        continue;
+                    if(cannon.getStatus().equals(CannonStatus.BUILDING))
+                        continue;
+
+                    if(cannon.isBroken()) {
+                        cannon.setStatus(CannonStatus.BROKEN);
+                    }
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 20);
     }
 
     public static Collection<Cannon> getCannons(){

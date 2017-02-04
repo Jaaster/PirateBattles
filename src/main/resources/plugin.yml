@@ -24,3 +24,6 @@ commands:
       description: For setting the kits of classes
       usage: /setkit [classname]
       permissions: piratebattle.admin
+  classes:
+      description: For viewing the classes
+      usage: /classes

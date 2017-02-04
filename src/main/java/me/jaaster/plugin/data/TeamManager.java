@@ -22,8 +22,7 @@ public class TeamManager {
     public static void joinTeam(Player p, Team t) {
         p.teleport(Locations.getLocation(t));
         PlayerDataManager.get(p).setTeam(t);
-        PlayerDataManager.get(p).setSpecialClass(SpecialClasses.STRIKER);
-
+        setClass(p, t);
         p.setHealth(5);
         if(t.equals(Team.LOBBY)) {
             p.sendMessage("Joined " + ChatColor.YELLOW + "Lobby!");
@@ -41,7 +40,7 @@ public class TeamManager {
 
         SpecialClasses list[] = SpecialClasses.values();
 
-        SpecialClasses sp = SpecialClasses.CAPTAIN;//list[TeamManager.getTeamPlayers(t).size()-1];
+        SpecialClasses sp = SpecialClasses.BOATS_SWAIN;//list[TeamManager.getTeamPlayers(t).size()-1];
 
         PlayerDataManager.get(p).setSpecialClass(sp);
         Main.getInstance().getClass(sp).setPlayerKit(p);

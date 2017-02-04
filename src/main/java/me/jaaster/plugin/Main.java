@@ -12,6 +12,7 @@ import me.jaaster.plugin.game.cannons.CannonManager;
 import me.jaaster.plugin.game.core.GameStatus;
 import me.jaaster.plugin.game.core.GameThread;
 import me.jaaster.plugin.game.events.SpecialClassEvents.*;
+import me.jaaster.plugin.utils.GUIManager;
 import me.jaaster.plugin.utils.Locations;
 import me.jaaster.plugin.utils.Team;
 import org.bukkit.Bukkit;
@@ -39,6 +40,8 @@ public class Main extends JavaPlugin {
     private GameStatus status;
     private MyConfigManager configManager;
     private HashMap<SpecialClasses, SpecialClass> classes;
+    private GUIManager guiManager;
+
     @Override
     public void onEnable() {
         configManager = new MyConfigManager(this);
@@ -52,10 +55,12 @@ public class Main extends JavaPlugin {
         loadClasses();
         registerPlayerData();
         CannonManager.registerCannons();
+
         GameThread gameThread = new GameThread();
         gameThread.start();
         new PlayerBoard();
         loadClasses();
+        guiManager = new GUIManager();
 
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -94,6 +99,7 @@ public class Main extends JavaPlugin {
         manager.registerEvents(new SurgeonEvent(), this);
         manager.registerEvents(new SoulBoundEvent(), this);
         manager.registerEvents(new StrikerEvent(), this);
+        manager.registerEvents(new GUIevent(), this);
 
     }
 
@@ -117,7 +123,6 @@ public class Main extends JavaPlugin {
     }
 
 
-
     private void registerPlayerData() {
         for (Player p : Bukkit.getOnlinePlayers()) {
             PlayerDataManager.create(p);
@@ -130,6 +135,7 @@ public class Main extends JavaPlugin {
         getCommand("join").setExecutor(new PlayerCmdJoin());
         getCommand("leave").setExecutor(new PlayerCmdLeave());
         getCommand("setcannon").setExecutor(new AdminCmdCannons());
+        getCommand("classes").setExecutor(new UnRestricedCmd());
     }
 
     public static Main getInstance() {
@@ -155,26 +161,28 @@ public class Main extends JavaPlugin {
 
     }
 
-    private void loadClasses(){
+    private void loadClasses() {
         classes = new HashMap<>();
 
         classes.put(SpecialClasses.CAPTAIN, new Captain());
-        classes.put(SpecialClasses.FIRST_MATE,new FirstMate());
-        classes.put(SpecialClasses.SURGEON,new Surgeon());
-        classes.put(SpecialClasses.STRIKER,new Striker());
-        classes.put(SpecialClasses.POWDER_MONKEY,new PowderMonkey());
-
-
+        classes.put(SpecialClasses.FIRST_MATE, new FirstMate());
+        classes.put(SpecialClasses.BOATS_SWAIN, new Boatswain());
+        classes.put(SpecialClasses.SURGEON, new Surgeon());
+        classes.put(SpecialClasses.STRIKER, new Striker());
+        classes.put(SpecialClasses.POWDER_MONKEY, new PowderMonkey());
 
 
     }
 
-    public SpecialClass getClass(SpecialClasses sp){
+    public SpecialClass getClass(SpecialClasses sp) {
 
-         return classes.get(sp);
+        return classes.get(sp);
 
     }
 
+    public GUIManager getGuiManager() {
+        return guiManager;
+    }
 
     public GameStatus getStatus() {
         return status;

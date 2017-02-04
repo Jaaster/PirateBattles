@@ -45,7 +45,7 @@ public class BoatswainEvent implements Listener{
             if(cannon == null)
                 return;
 
-            if(!cannon.getStatus().equals(CannonStatus.DEAD))
+            if(!cannon.getStatus().equals(CannonStatus.BROKEN))
                 return;
             p.setItemInHand(Boatswain.getBrokenWrench());
             p.sendMessage(Main.getInstance().getTitle() + "Repairing cannon");

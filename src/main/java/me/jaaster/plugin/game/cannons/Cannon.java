@@ -23,7 +23,6 @@ import org.bukkit.util.Vector;
 
 import static org.bukkit.ChatColor.*;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -47,7 +46,7 @@ public class Cannon {
         this.id = id;
 
 
-        status = CannonStatus.DEAD;
+        status = CannonStatus.BROKEN;
 
         if (p == null) {
             setupCannonsFromConfig();
@@ -305,6 +304,12 @@ public class Cannon {
 
 
     public boolean canFire() {
+        if(getStatus().equals(CannonStatus.BROKEN))
+            return false;
+        if(getStatus().equals(CannonStatus.BUILDING))
+            return false;
+
+
         if (getAmmo() > 0 && isLoaded() && !cooldown){
             return true;
         }
@@ -320,6 +325,11 @@ public class Cannon {
 
         if(cooldown)
             return Reason.COOLDOWN;
+        if(getStatus().equals(CannonStatus.BROKEN))
+            return Reason.BROKEN;
+
+        if(getStatus().equals(CannonStatus.BUILDING))
+            return Reason.BUILDING;
 
 
 
@@ -447,8 +457,29 @@ public class Cannon {
 
 
     public enum Reason{
-        AMMO, CANNONBALL, COOLDOWN, BROKEN
+        AMMO, CANNONBALL, COOLDOWN, BROKEN, BUILDING
     }
+
+    public boolean isBroken(){
+        for(Location l : getCannonBlockLocations().keySet()){
+            Material type = l.getBlock().getType();
+            if(type == null)
+                return true;
+
+            if(!type.equals(getCannonBlockLocations().get(l))) {
+                if(type.equals(Material.REDSTONE_TORCH_OFF))
+                    continue;
+                else
+                return true;
+            }
+
+
+        }
+
+        return false;
+
+    }
+
 
 
 }
