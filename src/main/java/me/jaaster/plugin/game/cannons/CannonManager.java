@@ -16,19 +16,23 @@ public class CannonManager {
 
     private static HashMap<Integer, Cannon> cannons = new HashMap<>();
 
+    public CannonManager() {
+        registerCannons();
+        cannonStatusChecker();
+    }
+
+
     public static void registerCannon(Cannon cannon) {
+        if (cannons.containsKey(cannon.getId()))
+            return;
+
         cannons.put(cannon.getId(), cannon);
     }
 
-    public static Cannon getCannon(int id) {
-        return cannons.get(id);
-    }
-
-    public synchronized static void registerCannons() {
+    private synchronized void registerCannons() {
         MyConfig config = Main.getInstance().getConfigFromName("CannonConfig");
         for (int i = 0; i < 50; i++) {
-            if(config.getConfigurationSection("Cannon" + i) == null) {
-                checker();
+            if (config.getConfigurationSection("Cannon" + i) == null) {
                 return;
             }
             registerCannon(new Cannon(i));
@@ -37,17 +41,22 @@ public class CannonManager {
 
     }
 
-    private static void checker(){
-        new BukkitRunnable(){
+    private static void cannonStatusChecker() {
+        new BukkitRunnable() {
             @Override
             public void run() {
-                for(Cannon cannon: getCannons()){
-                    if(cannon.getStatus().equals(CannonStatus.BROKEN))
+                for (Cannon cannon : getCannons()) {
+                    if (cannon.getStatus().equals(CannonStatus.BROKEN)) {
+                        if (!cannon.isBroken()) {
+                            cannon.setStatus(CannonStatus.WAITING);
+                        }
                         continue;
-                    if(cannon.getStatus().equals(CannonStatus.BUILDING))
+                    }
+
+                    if (cannon.getStatus().equals(CannonStatus.BUILDING))
                         continue;
 
-                    if(cannon.isBroken()) {
+                    if (cannon.isBroken()) {
                         cannon.setStatus(CannonStatus.BROKEN);
                     }
                 }
@@ -55,16 +64,18 @@ public class CannonManager {
         }.runTaskTimer(Main.getInstance(), 0, 20);
     }
 
-    public static Collection<Cannon> getCannons(){
-        return  cannons.values();
+    public static Collection<Cannon> getCannons() {
+        return cannons.values();
     }
-    public static Cannon getCannon(Location loc){
-        for(Cannon cannon : CannonManager.getCannons()) {
-            if (cannon.getLocation().distance(loc) <= 1.5)
+
+
+    //Gets the cannon that is within a certain radius of the loc
+    public static Cannon getCannon(Location loc) {
+        double radius = 1.5;
+        for (Cannon cannon : CannonManager.getCannons()) {
+            if (cannon.getLocation().distance(loc) <= radius)
                 return cannon;
-
         }
-
         return null;
     }
 

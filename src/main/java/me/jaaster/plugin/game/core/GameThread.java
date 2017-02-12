@@ -5,23 +5,38 @@ import me.jaaster.plugin.data.PlayerData;
 import me.jaaster.plugin.data.PlayerDataManager;
 import me.jaaster.plugin.utils.Team;
 import me.jaaster.plugin.data.TeamManager;
+import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Plado on 1/15/2017.
  */
 public class GameThread {
 
+    private final int minTeamSize = 1;
+    private final int cooldownStart = 15;
 
-    public void start() {
+    public GameThread(){
+        start();
+    }
+
+
+
+    private void start() {
         new BukkitRunnable() {
 
             public void run() {
-                if (canStartGame()) {
-                    startGame();
+
+
+
+                if (canStartCountdown()) {
+                    startCountdown();
                 }
 
                 if (canStopGame()) {
@@ -29,10 +44,7 @@ public class GameThread {
 
                     if(team != null){
                         Bukkit.broadcastMessage(Main.getInstance().getTitle() + Team.getColor(team) + "TEAM " + team.toString().replace("Team.",  "")  + " WON THE GAME!");
-
-
-                    }else{
-                        //the game was tie
+                    } else {
                         Bukkit.broadcastMessage(Main.getInstance().getTitle() + ChatColor.GREEN + "THE GAME IS A TIE!");
                     }
 
@@ -45,29 +57,40 @@ public class GameThread {
     }
 
 
-    private void startGame() {
-        Main.getInstance().setStatus(GameStatus.INGAME);
+    private void startCountdown() {
 
-        Bukkit.getServer().broadcastMessage(Main.getInstance().getTitle() + ChatColor.BOLD + "GAME HAS STARTED!");
+        Main.getInstance().setGameStatus(GameStatus.COUNTDOWN);
 
-    }
+        new BukkitRunnable(){
 
-    private void message(Team team, String msg) {
+            int i = cooldownStart;
+            @Override
+            public void run() {
+                if(i == 15)
+                    Bukkit.broadcastMessage(Main.getInstance().getTitle() + " Countdown commencing!");
 
-        if (team == null)
-            return;
+                Bukkit.broadcastMessage(Main.getInstance().getTitle() + i);
+                i--;
+                if(i == 0) {
+                 startGame();
+                    cancel();
+                }
 
-        for (PlayerData pd : PlayerDataManager.get()) {
-            if (pd.getTeam().equals(team)) {
-                pd.getPlayer().sendMessage(Main.getInstance().getTitle() + msg);
+
+
             }
-        }
-
+        }.runTaskTimer(Main.getInstance(), 0, 20);
 
     }
+
+    private void startGame(){
+        Main.getInstance().setGameStatus(GameStatus.INGAME);
+        Bukkit.getServer().broadcastMessage(Main.getInstance().getTitle() + ChatColor.BOLD + "GAME HAS STARTED!");
+    }
+
 
     private void stopGame() {
-        Main.getInstance().setStatus(GameStatus.WAITING);
+        Main.getInstance().setGameStatus(GameStatus.WAITING);
 
         for(Player p : Bukkit.getOnlinePlayers()){
             TeamManager.joinTeam(p, Team.LOBBY);
@@ -81,36 +104,63 @@ public class GameThread {
         r = TeamManager.getTeamPlayers(Team.RED).size();
         b = TeamManager.getTeamPlayers(Team.BLUE).size();
 
-        if (r < 1 && b > r) {
+        if (r < 1 && b > r)
             return Team.BLUE;
 
-        } else if (b < 1 && r > b) {
+         else if (b < 1 && r > b)
                 return Team.RED;
 
-        } else if (b < 1 && r < 1) {
+         else if (b < 1 && r < 1)
                 return null;
-        }
+
 
         return null;
 
     }
 
     private boolean canStopGame() {
-        if (!Main.getInstance().getStatus().equals(GameStatus.INGAME)) return false;
+        if (!Main.getInstance().getGameStatus().equals(GameStatus.INGAME)) return false;
 
-        return (TeamManager.getTeamPlayers(Team.BLUE).size() < 1 || TeamManager.getTeamPlayers(Team.RED).size() < 1);
+        return teamsHaveMoreThan(0, false);
+
+    }
+
+    private boolean canStartCountdown(){
+        GameStatus status = Main.getInstance().getGameStatus();
+        if(!status.equals(GameStatus.WAITING))
+            return false;
+
+        return teamsHaveMoreThan(1, true);
+
+    }
+
+    private boolean teamsHaveMoreThan(int i, boolean more){
+        //more or less
+
+        List<Player> red,blue ;
+        red = TeamManager.getTeamPlayers(Team.RED);
+        blue = TeamManager.getTeamPlayers(Team.BLUE);
+
+        if (red == null || blue == null)
+            return false;
+
+        if(more)
+            return (red.size() > i && blue.size() > i);
+        else return  (red.size() < i && blue.size() < i);
 
     }
 
 
     private boolean canStartGame() {
+        GameStatus status = Main.getInstance().getGameStatus();
 
-        if(Main.getInstance().getStatus().equals(GameStatus.INGAME))
+        if(status.equals(GameStatus.COUNTDOWN))
             return false;
 
-        if (TeamManager.getTeamPlayers(Team.RED) == null || TeamManager.getTeamPlayers(Team.BLUE) == null)
+        if(status.equals(GameStatus.INGAME))
             return false;
 
-        return (TeamManager.getTeamPlayers(Team.RED).size() > 0 && TeamManager.getTeamPlayers(Team.BLUE).size() > 0);
+        return teamsHaveMoreThan(minTeamSize, true);
     }
+
 }

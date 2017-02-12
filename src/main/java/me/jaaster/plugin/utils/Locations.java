@@ -3,7 +3,7 @@ package me.jaaster.plugin.utils;
 import org.bukkit.Location;
 
 /**
- * Created by Plado on 8/25/2016.
+ * Created by Jaaster on 8/25/2016.
  */
 public class Locations {
 
@@ -26,8 +26,8 @@ public class Locations {
             return Loc.LOBBYSPAWN.location;
         }
 
-     if( team.equals(Team.RED))
-         return Loc.REDSPAWN.location;
+        if (team.equals(Team.RED))
+            return Loc.REDSPAWN.location;
         else return Loc.BLUESPAWN.location;
 
 

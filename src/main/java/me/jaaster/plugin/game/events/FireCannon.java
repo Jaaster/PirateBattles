@@ -5,16 +5,12 @@ import me.jaaster.plugin.game.cannons.Cannon;
 import me.jaaster.plugin.game.cannons.CannonManager;
 import static org.bukkit.ChatColor.*;
 
-import me.jaaster.plugin.game.cannons.CannonStatus;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Created by Plado on 11/7/2016.
@@ -63,6 +59,8 @@ public class FireCannon implements Listener {
                 case BUILDING:
                     p.sendMessage(title + RED + "Cannon is building!");
                     break;
+                case GAME:
+                    p.sendMessage(title + RED + "Must wait for the game to start!");
             }
 
 

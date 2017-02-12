@@ -42,51 +42,34 @@ public class Main extends JavaPlugin {
     private HashMap<SpecialClasses, SpecialClass> classes;
     private GUIManager guiManager;
 
-    @Override
+
     public void onEnable() {
+
         configManager = new MyConfigManager(this);
         manager = Bukkit.getServer().getPluginManager();
         status = GameStatus.WAITING;
         instance = this;
+
         registerConfigs();
         registerListeners();
         loadLocations();
         loadCommands();
-        loadClasses();
-        registerPlayerData();
-        CannonManager.registerCannons();
-
-        GameThread gameThread = new GameThread();
-        gameThread.start();
+        loadSpecialClasses();
+        new CannonManager();
+        reset();
+        new GameThread();
         new PlayerBoard();
-        loadClasses();
         guiManager = new GUIManager();
 
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            PlayerDataManager.create(p);
-            TeamManager.joinTeam(p, Team.LOBBY);
-
-
-        }
     }
 
-    @Override
+
     public void onDisable() {
-        clear();
     }
 
-    private void clear() {
-        for (Entity entity : Bukkit.getWorld("world").getEntities()) {
-            if (entity instanceof Player)
-                continue;
-            entity.remove();
-        }
-    }
 
     private void registerListeners() {
-
-
         manager.registerEvents(new JoinQuit(), this);
         manager.registerEvents(new FireCannon(), this);
         manager.registerEvents(new Event(), this);
@@ -100,7 +83,6 @@ public class Main extends JavaPlugin {
         manager.registerEvents(new SoulBoundEvent(), this);
         manager.registerEvents(new StrikerEvent(), this);
         manager.registerEvents(new GUIevent(), this);
-
     }
 
 
@@ -109,12 +91,12 @@ public class Main extends JavaPlugin {
         for (Locations.Loc loc : Locations.Loc.values()) {
             String s = loc.toString();
             ConfigurationSection sec = getConfig().getConfigurationSection("Locations").getConfigurationSection(s);
-            int x, y, z;
+            double x, y, z;
 
             World world = getServer().getWorld(sec.getString("World"));
-            x = sec.getInt("X");
-            y = sec.getInt("Y");
-            z = sec.getInt("Z");
+            x = sec.getDouble("X");
+            y = sec.getDouble("Y");
+            z = sec.getDouble("Z");
 
             Locations.setLocation(loc, new Location(world, x, y, z));
 
@@ -122,12 +104,6 @@ public class Main extends JavaPlugin {
 
     }
 
-
-    private void registerPlayerData() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            PlayerDataManager.create(p);
-        }
-    }
 
     private void loadCommands() {
         getCommand("setkit").setExecutor(new AdminCmdKits());
@@ -161,9 +137,8 @@ public class Main extends JavaPlugin {
 
     }
 
-    private void loadClasses() {
+    private void loadSpecialClasses() {
         classes = new HashMap<>();
-
         classes.put(SpecialClasses.CAPTAIN, new Captain());
         classes.put(SpecialClasses.FIRST_MATE, new FirstMate());
         classes.put(SpecialClasses.BOATS_SWAIN, new Boatswain());
@@ -171,24 +146,41 @@ public class Main extends JavaPlugin {
         classes.put(SpecialClasses.STRIKER, new Striker());
         classes.put(SpecialClasses.POWDER_MONKEY, new PowderMonkey());
 
-
     }
 
-    public SpecialClass getClass(SpecialClasses sp) {
-
+    public SpecialClass getSpecialClass(SpecialClasses sp) {
         return classes.get(sp);
-
     }
 
     public GUIManager getGuiManager() {
         return guiManager;
     }
 
-    public GameStatus getStatus() {
+    public GameStatus getGameStatus() {
         return status;
     }
 
-    public void setStatus(GameStatus status) {
+    public void setGameStatus(GameStatus status) {
         this.status = status;
+    }
+
+
+    private void reset() {
+        //Clear entities
+        for (Entity entity : Bukkit.getWorld("world").getEntities()) {
+            if (entity instanceof Player)
+                continue;
+            entity.remove();
+        }
+        //Add players to lobby
+
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            PlayerDataManager.create(p);
+            TeamManager.joinTeam(p, Team.LOBBY);
+
+        }
+
+
     }
 }

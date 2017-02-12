@@ -16,9 +16,9 @@ public class PlayerData {
     private Team team;
     private SpecialClasses pClass;
     private Player p;
+
     PlayerData(UUID uuid) {
         this.uuid = uuid;
-
         p = Bukkit.getPlayer(uuid);
     }
 
@@ -34,26 +34,23 @@ public class PlayerData {
         return team;
     }
 
-    public String getName(){
-        return p.getName();
-    }
-
-
-    public void setClass(SpecialClasses c){
+    public void setClass(SpecialClasses c) {
         pClass = c;
     }
 
-    public SpecialClasses getSpecialClass(){
+    public SpecialClasses getSpecialClass() {
         return pClass;
     }
-    public void setSpecialClass(SpecialClasses pClass){
+
+    public void setSpecialClass(SpecialClasses pClass) {
         this.pClass = pClass;
     }
 
-    public boolean hasSpecialClass(){
+    public boolean hasSpecialClass() {
         return pClass != null;
     }
-    public Player getPlayer(){
+
+    public Player getPlayer() {
         return p;
     }
 

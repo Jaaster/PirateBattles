@@ -2,18 +2,13 @@ package me.jaaster.plugin.game.cannons;
 
 import me.jaaster.plugin.Main;
 import me.jaaster.plugin.config.MyConfig;
+import me.jaaster.plugin.game.core.GameStatus;
 import me.jaaster.plugin.utils.CardinalDirection;
-import net.minecraft.server.v1_10_R1.EnumParticle;
-import net.minecraft.server.v1_10_R1.PacketPlayOutWorldParticles;
-import org.bukkit.Bukkit;
+import org.bukkit.*;
 
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
 import org.bukkit.material.Button;
@@ -44,7 +39,6 @@ public class Cannon {
 
     public Cannon(int id, Player p) {
         this.id = id;
-
 
         status = CannonStatus.BROKEN;
 
@@ -86,7 +80,6 @@ public class Cannon {
             }
             config.createSection("Cannon" + id);
             config.getConfigurationSection("Cannon" + id).createSection("Location");
-
         }
 
         p.sendMessage(Main.getInstance().getTitle() + "You have set " + BLUE + "Cannon " + id + GRAY + " in the CannonConfig.yml");
@@ -102,10 +95,11 @@ public class Cannon {
         loc.set("Y", location.getBlockY());
         loc.set("Z", location.getZ());
 
-            config.saveConfig();
+        config.saveConfig();
 
 
         CannonManager.registerCannon(this);
+        buildCannon();
 
     }
 
@@ -150,9 +144,6 @@ public class Cannon {
             }
         }.runTaskTimer(Main.getInstance(), 0, 20);
 
-
-
-
     }
 
     private void runLater(final Material mat, final Location loc, int delay) {
@@ -166,7 +157,6 @@ public class Cannon {
                     loc.getBlock().setData(button.getData());
                 }
             }.runTaskLater(Main.getInstance(), delay * 20);
-
 
         } else if (mat.equals(Material.REDSTONE_TORCH_ON)) {
 
@@ -194,41 +184,45 @@ public class Cannon {
                 break;
             }
 
+            World world = location.getWorld();
+            int x, y, z;
+            x = location.getBlockX();
+            y = location.getBlockY();
+            z = location.getBlockZ();
             switch (direction) {
                 case NORTH:
                     if (mat.equals(Material.STONE_BUTTON)) {
-                        list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() + 1), mat);
+                        list.put(new Location(world, x, y + 1, z + 1), mat);
                         break;
                     }
 
-                    list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() - i), mat);
+                    list.put(new Location(world, x, y + 1, z - i), mat);
                     break;
                 case EAST:
                     if (mat.equals(Material.STONE_BUTTON)) {
-                        list.put(new Location(location.getWorld(), location.getBlockX() - 1, location.getBlockY() + 1, location.getBlockZ()), mat);
+                        list.put(new Location(world, x - 1, y + 1, location.getBlockZ()), mat);
                         break;
                     }
 
-                    list.put(new Location(location.getWorld(), location.getBlockX() + i, location.getBlockY() + 1, location.getBlockZ()), mat);
+                    list.put(new Location(world, location.getBlockX() + i, location.getBlockY() + 1, location.getBlockZ()), mat);
                     break;
                 case SOUTH:
                     if (mat.equals(Material.STONE_BUTTON)) {
-                        list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() - 1), mat);
+                        list.put(new Location(world, location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() - 1), mat);
                         break;
                     }
 
-                    list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() + i), mat);
+                    list.put(new Location(world, location.getBlockX(), location.getBlockY() + 1, location.getBlockZ() + i), mat);
                     break;
                 case WEST:
                     if (mat.equals(Material.STONE_BUTTON)) {
-                        list.put(new Location(location.getWorld(), location.getBlockX() + 1, location.getBlockY() + 1, location.getBlockZ()), mat);
+                        list.put(new Location(world, location.getBlockX() + 1, location.getBlockY() + 1, location.getBlockZ()), mat);
                         break;
                     }
 
                     list.put(new Location(location.getWorld(), location.getBlockX() - i, location.getBlockY() + 1, location.getBlockZ()), mat);
                     break;
             }
-
 
         }
         list.put(new Location(location.getWorld(), location.getBlockX(), location.getBlockY() + 2, location.getBlockZ()), mat);
@@ -237,30 +231,37 @@ public class Cannon {
     }
 
 
-    private Vector getVelocity() {
+    private Vector createVelocity() {
         Vector vec = new Vector();
         vec.setY(2);
 
-        double l = 0.7 * getAmmo();
-
-
+        double i = 0.7 * getAmmo();
         switch (direction) {
             case NORTH:
-                vec.setZ(-l);
+                vec.setZ(-i);
                 break;
             case EAST:
-                vec.setX(l);
+                vec.setX(i);
                 break;
             case SOUTH:
-                vec.setZ(l);
+                vec.setZ(i);
                 break;
             case WEST:
-                vec.setX(-l);
+                vec.setX(-i);
                 break;
         }
         return vec;
+    }
 
+    public boolean canFire() {
 
+        if (Main.getInstance().getGameStatus().equals(GameStatus.WAITING))
+            return false;
+
+        if (!getStatus().equals(CannonStatus.WAITING))
+            return false;
+
+        return getAmmo() > 0 && isLoaded();
     }
 
     public boolean fire() {
@@ -268,7 +269,7 @@ public class Cannon {
             return false;
 
         final Creeper creeper = tip.getWorld().spawn(tip.add(0, 1, 0), Creeper.class);
-        creeper.setVelocity(getVelocity());
+        creeper.setVelocity(createVelocity());
         //This is where the vectors and entity stuff will be made :)
         /*1 ammo = 20 blocks
 
@@ -302,44 +303,47 @@ public class Cannon {
 
     }
 
+    public boolean isBroken() {
+        for (Location l : getCannonBlockLocations().keySet()) {
+            Material type = l.getBlock().getType();
+            if (type == null)
+                return true;
 
-    public boolean canFire() {
-        if(getStatus().equals(CannonStatus.BROKEN))
-            return false;
-        if(getStatus().equals(CannonStatus.BUILDING))
-            return false;
-
-
-        if (getAmmo() > 0 && isLoaded() && !cooldown){
-            return true;
+            if (!type.equals(getCannonBlockLocations().get(l))) {
+                if (type.equals(Material.REDSTONE_TORCH_OFF))
+                    continue;
+                else
+                    return true;
+            }
         }
-        else return false;
+        return false;
+
     }
 
-    public Reason why(){
-        if(!loaded)
+
+    public Reason why() {
+        if (!loaded)
             return Reason.CANNONBALL;
 
-        if(ammo < 1)
+        if (ammo < 1)
             return Reason.AMMO;
 
-        if(cooldown)
+        if (cooldown)
             return Reason.COOLDOWN;
-        if(getStatus().equals(CannonStatus.BROKEN))
+        if (getStatus().equals(CannonStatus.BROKEN))
             return Reason.BROKEN;
 
-        if(getStatus().equals(CannonStatus.BUILDING))
+        if (getStatus().equals(CannonStatus.BUILDING))
             return Reason.BUILDING;
 
-
-
-
+        if (Main.getInstance().getGameStatus().equals(GameStatus.WAITING) || Main.getInstance().getGameStatus().equals(GameStatus.COUNTDOWN))
+            return Reason.GAME;
 
         else return null;
 
     }
 
-    public int getCooldownTime(){
+    public int getCooldownTime() {
         return timer;
     }
 
@@ -406,23 +410,7 @@ public class Cannon {
     }
 
     private void buildEffect(Location loc) {
-        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(
-                EnumParticle.CRIT,    // particle type.
-                true,                                                   // true
-                loc.getBlockX(),             // x coordinate
-                loc.getBlockY(),             // y coordinate
-                loc.getBlockZ(),             // z coordinate
-                0,                                                              // x offset
-                0,                                                              // y offset
-                0,                                                              // z offset
-                1,                                                             // speed
-                500,                                                 // number of particles
-                null
-        );
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
-        }
-
+        loc.getWorld().playEffect(loc, Effect.MAGIC_CRIT, 5);
     }
 
     private void startCooldown() {
@@ -446,40 +434,18 @@ public class Cannon {
 
     }
 
-    private Player getLastPlayer(){
+    private Player getLastPlayer() {
         return lastPlayer;
     }
 
-    public void setLastPlayer(Player p){
+    public void setLastPlayer(Player p) {
         lastPlayer = p;
     }
 
 
-
-    public enum Reason{
-        AMMO, CANNONBALL, COOLDOWN, BROKEN, BUILDING
+    public enum Reason {
+        AMMO, CANNONBALL, COOLDOWN, BROKEN, BUILDING, GAME
     }
-
-    public boolean isBroken(){
-        for(Location l : getCannonBlockLocations().keySet()){
-            Material type = l.getBlock().getType();
-            if(type == null)
-                return true;
-
-            if(!type.equals(getCannonBlockLocations().get(l))) {
-                if(type.equals(Material.REDSTONE_TORCH_OFF))
-                    continue;
-                else
-                return true;
-            }
-
-
-        }
-
-        return false;
-
-    }
-
 
 
 }

@@ -30,9 +30,17 @@ public class AdminCmdCannons implements CommandExecutor {
             p.sendMessage(Main.getInstance().getTitle() + "You do not have permission to do that");
             return false;
         }
+
         if(args.length < 0)
             return false;
-        int id = Integer.parseInt(args[0]);
+        int id = 0;
+        try {
+             id = Integer.parseInt(args[0]);
+        }catch(NumberFormatException e){
+            p.sendMessage(Main.getInstance().getTitle() + "ID must be a number value. ");
+            return false;
+        }
+
         new Cannon(id, p);
         return true;
     }

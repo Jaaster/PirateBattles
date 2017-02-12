@@ -5,5 +5,5 @@ package me.jaaster.plugin.game.core;
  */
 public enum GameStatus {
 
-    WAITING, INGAME
+    WAITING, INGAME, COUNTDOWN
 }

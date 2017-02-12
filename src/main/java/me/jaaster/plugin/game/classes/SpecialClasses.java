@@ -3,10 +3,9 @@ package me.jaaster.plugin.game.classes;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Created by Plado on 8/25/2016.
+ * Created by Jaaster on 8/25/2016.
  */
 public enum SpecialClasses {
     CAPTAIN{

@@ -20,6 +20,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by Plado on 1/27/2017.
@@ -27,46 +28,37 @@ import java.util.Set;
 
 public class PlayerBoard {
 
-    public PlayerBoard(){
+    public PlayerBoard() {
         start();
-
         boards = new HashMap<>();
     }
 
-    HashMap<String, Scoreboard> boards;
+    HashMap<UUID, Scoreboard> boards;
 
     private void start() {
 
-        new BukkitRunnable(){
+        new BukkitRunnable() {
             @Override
             public void run() {
 
-                for(Player p : Bukkit.getOnlinePlayers()){
+                for (Player p : Bukkit.getOnlinePlayers()) {
 
-                    if(!isLookingAtCannon(p))
+                    if (!isLookingAtCannon(p))
                         continue;
 
                     //Is looking at a cannon
                     Cannon cannon = CannonManager.getCannon(p.getTargetBlock((Set<Material>) null, 5).getLocation());
                     updateScoreboard(p, cannon);
-
                 }
 
+                for (Player p : Bukkit.getOnlinePlayers()) {
 
-                for(Player p : Bukkit.getOnlinePlayers()){
-
-                        if (hasBoard(p)) {
-                            updateScoreboard(p, CannonManager.getCannon(p.getTargetBlock((Set<Material>) null, 5).getLocation()));
-                        } else {
-                            addBoard(p);
-                        }
-
-
-
+                    if (hasBoard(p)) {
+                        updateScoreboard(p, CannonManager.getCannon(p.getTargetBlock((Set<Material>) null, 5).getLocation()));
+                    } else {
+                        addBoard(p);
+                    }
                 }
-                //Update Scoreboard
-
-
 
             }
         }.runTaskTimer(Main.getInstance(), 0, 5);
@@ -75,11 +67,11 @@ public class PlayerBoard {
     }
 
 
-    private boolean hasBoard(Player p ){
-   return boards.containsKey(p.getName());
+    private boolean hasBoard(Player p) {
+        return boards.containsKey(p.getUniqueId());
     }
 
-    private void addBoard(Player p){
+    private void addBoard(Player p) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
 
         org.bukkit.scoreboard.Team teamRed, teamBlue, teamSpec;
@@ -94,40 +86,42 @@ public class PlayerBoard {
         teamSpec.setPrefix("[Spectator] ");
         p.setScoreboard(board);
 
-        boards.put(p.getName(), board);
+        for (org.bukkit.scoreboard.Team t : board.getTeams()) {
+            t.setAllowFriendlyFire(false);
+        }
+
+        boards.put(p.getUniqueId(), board);
+
     }
 
 
-    private void updateScoreboard(Player p, Cannon cannon){
+    private void updateScoreboard(Player p, Cannon cannon) {
         //ScoreBoard
-        Scoreboard board = boards.get(p.getName());
+        Scoreboard board = boards.get(p.getUniqueId());
 
         if (board.getObjective(DisplaySlot.SIDEBAR) != null) {
             board.getObjective(DisplaySlot.SIDEBAR).unregister();
         }
 
-
-        if(board.getObjective(p.getName()) != null){
+        if (board.getObjective(p.getName()) != null) {
             board.getObjective(p.getName()).unregister();
         }
 
         Objective obj = board.registerNewObjective(p.getName(), p.getName());
 
-
-         //Registering Teams
+        //Registering Teams
 
         //Setting teams
-        for(PlayerData pd: PlayerDataManager.get()){
-            if(pd.getTeam() == null)
+        for (PlayerData pd : PlayerDataManager.get()) {
+            if (pd.getTeam() == null)
                 continue;
 
-
-            if(pd.getTeam().equals(Team.RED)){
+            if (pd.getTeam().equals(Team.RED)) {
                 board.getTeam(ChatColor.RED + "[RED] ").addPlayer(pd.getPlayer());
-            }else if(pd.getTeam().equals(Team.BLUE)){
+            } else if (pd.getTeam().equals(Team.BLUE)) {
                 board.getTeam(ChatColor.BLUE + "[BLUE] ").addPlayer(pd.getPlayer());
-            }else{
-                if(pd.getTeam().equals(Team.LOBBY)){
+            } else {
+                if (pd.getTeam().equals(Team.LOBBY)) {
                     board.getTeam(ChatColor.RESET + "[Spectator] " + ChatColor.RESET).addPlayer(pd.getPlayer());
                 }
             }
@@ -135,7 +129,7 @@ public class PlayerBoard {
 
 
         //Cannon stats
-        if(cannon == null)
+        if (cannon == null)
             return;
 
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -147,8 +141,8 @@ public class PlayerBoard {
         loaded.setScore(9);
         Score ammo = obj.getScore("Ammo: " + cannon.getAmmo() + "/4");
         ammo.setScore(8);
-        if(cannon.getStatus().equals(CannonStatus.COOLDOWN)){
-            Score cooldown  = obj.getScore("Cooldown: " + cannon.getCooldownTime());
+        if (cannon.getStatus().equals(CannonStatus.COOLDOWN)) {
+            Score cooldown = obj.getScore("Cooldown: " + cannon.getCooldownTime());
             cooldown.setScore(7);
         }
 
@@ -156,10 +150,9 @@ public class PlayerBoard {
     }
 
 
-    private boolean isLookingAtCannon(Player p){
+    private boolean isLookingAtCannon(Player p) {
         return CannonManager.getCannon(p.getEyeLocation()) != null;
     }
-
 
 
 }

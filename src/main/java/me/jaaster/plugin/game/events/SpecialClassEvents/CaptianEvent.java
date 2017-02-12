@@ -8,18 +8,23 @@ import me.jaaster.plugin.game.classes.SpecialClasses;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 /**
@@ -31,11 +36,34 @@ public class CaptianEvent implements Listener {
     private HashMap<String, Bat> map;
     private HashMap<String, Integer> cooldown;
     public CaptianEvent() {
-        batChecker();
+
+       // batChecker();
 
         map = new HashMap<>();
         cooldown = new HashMap<>();
 
+    }
+
+
+    @EventHandler
+    public void bulletHit(EntityDamageByEntityEvent e) {
+        if (!(e.getDamager() instanceof Snowball))
+            return;
+
+        Snowball snowball = (Snowball) e.getDamager();
+        if (!(snowball.getShooter() instanceof Player))
+            return;
+
+        if (!(e.getEntity() instanceof Player))
+            return;
+        Player v = (Player) e.getEntity();
+        Player p = (Player) snowball.getShooter();
+        PlayerData pd = PlayerDataManager.get(p);
+        if (pd.getTeam().equals(PlayerDataManager.get(v).getTeam())){
+            e.setCancelled(true);
+    }
+
+        e.setDamage(10.0);
     }
 
 
@@ -73,6 +101,7 @@ public class CaptianEvent implements Listener {
 
             snowball.setVelocity(vec);
             fireSound((CraftPlayer)p);
+            snowball.setShooter(e.getPlayer());
 
         }
 
@@ -116,6 +145,8 @@ public class CaptianEvent implements Listener {
 
     }
 
+    /*
+
     private void batChecker() {
 
         new BukkitRunnable() {
@@ -127,7 +158,7 @@ public class CaptianEvent implements Listener {
 
 
                                 Bat bat = map.get(pd.getName());
-                                bat.teleport(pd.getPlayer().getLocation().add(0.7, 5, 0.7));
+                                bat.teleport(pd.getPlayer().getLocation().add(0.7, 10, 0.7));
 
                             } else {
                                 Bat bat = pd.getPlayer().getWorld().spawn(pd.getPlayer().getLocation(), Bat.class);
@@ -141,6 +172,7 @@ public class CaptianEvent implements Listener {
 
 
     }
+    */
 
 
     private void fireSound(CraftPlayer p){

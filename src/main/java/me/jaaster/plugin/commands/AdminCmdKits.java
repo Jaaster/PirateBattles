@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * Created by Plado on 1/27/2017.
+ * Created by Jaaster on 1/27/2017.
  */
 public class AdminCmdKits implements CommandExecutor {
 
@@ -47,14 +47,11 @@ public class AdminCmdKits implements CommandExecutor {
 
 
     private boolean classExists(String s) {
-
         return getClass(s) != null;
     }
 
-
     private SpecialClasses getClass(String s) {
         for (SpecialClasses sp : SpecialClasses.values()) {
-
             if (s.equalsIgnoreCase(sp.toString())) {
                 return sp;
             }

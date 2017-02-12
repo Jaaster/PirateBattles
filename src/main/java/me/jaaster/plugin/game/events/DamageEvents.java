@@ -12,11 +12,14 @@ import org.bukkit.event.entity.EntityDamageEvent;
 public class DamageEvents  implements Listener{
 
 
-    /*
+
     @EventHandler
     public void onDamageEvent(EntityDamageEvent e){
-        if(Main.getInstance().getStatus().equals(GameStatus.WAITING))
+        if(!Main.getInstance().getGameStatus().equals(GameStatus.INGAME))
             e.setCancelled(true);
     }
-    */
+
+
+
+
 }

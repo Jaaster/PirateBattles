@@ -34,7 +34,7 @@ public class JoinQuit implements Listener {
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (Main.getInstance().getStatus().equals(GameStatus.WAITING))
+        if (Main.getInstance().getGameStatus().equals(GameStatus.INGAME))
             return;
 
 
